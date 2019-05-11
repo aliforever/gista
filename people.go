@@ -11,7 +11,7 @@ type people struct {
 	Ig *instagram
 }
 
-func NewPeople(i *instagram) *people {
+func newPeople(i *instagram) *people {
 	return &people{Ig: i}
 }
 

@@ -11,7 +11,7 @@ type story struct {
 	Ig *instagram
 }
 
-func NewStory(i *instagram) *story {
+func newStory(i *instagram) *story {
 	return &story{Ig: i}
 }
 

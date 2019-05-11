@@ -14,7 +14,7 @@ type timeline struct {
 	Ig *instagram
 }
 
-func NewTimeline(i *instagram) *timeline {
+func newTimeline(i *instagram) *timeline {
 	return &timeline{Ig: i}
 }
 

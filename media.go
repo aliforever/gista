@@ -9,7 +9,7 @@ type media struct {
 	Ig *instagram
 }
 
-func NewMedia(i *instagram) *media {
+func newMedia(i *instagram) *media {
 	return &media{Ig: i}
 }
 

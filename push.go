@@ -10,7 +10,7 @@ type push struct {
 	Ig *instagram
 }
 
-func NewPush(i *instagram) *push {
+func newPush(i *instagram) *push {
 	return &push{Ig: i}
 }
 

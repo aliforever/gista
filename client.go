@@ -14,7 +14,7 @@ import (
 	"github.com/aliforever/gista/constants"
 )
 
-const CookieAutoSaveInterval int64 = 45
+const cookieAutoSaveInterval int64 = 45
 
 type client struct {
 	userAgent          string
@@ -90,7 +90,7 @@ func (c *client) api(request *http.Request) (resp *http.Response, err error) {
 		err = errors.RequestHeaderTooLargeResponse
 		return
 	}
-	if time.Now().Unix()-c.cookieJarLastSaved > CookieAutoSaveInterval {
+	if time.Now().Unix()-c.cookieJarLastSaved > cookieAutoSaveInterval {
 		err = c.SaveCookieJar()
 	}
 	return

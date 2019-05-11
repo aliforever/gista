@@ -62,13 +62,13 @@ func New(storageConfig *map[string]string) (i *instagram, err error) {
 	i.Client = newClient(i)
 	i.Internal = newInternal(i)
 	i.Account = newAccount(i)
-	i.Timeline = NewTimeline(i)
-	i.Story = NewStory(i)
-	i.Discover = NewDiscover(i)
-	i.Push = NewPush(i)
-	i.Direct = NewDirect(i)
-	i.People = NewPeople(i)
-	i.Media = NewMedia(i)
+	i.Timeline = newTimeline(i)
+	i.Story = newStory(i)
+	i.Discover = newDiscover(i)
+	i.Push = newPush(i)
+	i.Direct = newDirect(i)
+	i.People = newPeople(i)
+	i.Media = newMedia(i)
 	return
 }
 

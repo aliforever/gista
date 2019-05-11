@@ -9,7 +9,7 @@ type direct struct {
 	Ig *instagram
 }
 
-func NewDirect(i *instagram) *direct {
+func newDirect(i *instagram) *direct {
 	return &direct{Ig: i}
 }
 

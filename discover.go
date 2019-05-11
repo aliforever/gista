@@ -15,7 +15,7 @@ type discover struct {
 	Ig *instagram
 }
 
-func NewDiscover(i *instagram) *discover {
+func newDiscover(i *instagram) *discover {
 	return &discover{Ig: i}
 }
 
