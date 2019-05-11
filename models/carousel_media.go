@@ -1,14 +1,14 @@
 package models
 
 type CarouselMedia struct {
-	Pk                string         `json:"pk"`
+	Pk                int            `json:"pk"`
 	Id                string         `json:"id"`
 	CarouselParentId  string         `json:"carousel_parent_id"`
 	FbUserTags        Usertag        `json:"fb_user_tags"`
 	NumberOfQualities int            `json:"number_of_qualities"`
 	IsDashEligible    int            `json:"is_dash_eligible"`
 	VideoDashManifest string         `json:"video_dash_manifest"`
-	ImageVersions2    ImageVersions2 `json:"image_versions_2"`
+	ImageVersions2    ImageVersions2 `json:"image_versions2"`
 	VideoVersions     []VideoVersion `json:"video_versions"`
 	HasAudio          bool           `json:"has_audio"`
 	VideoDuration     float64        `json:"video_duration"`

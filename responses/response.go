@@ -12,7 +12,7 @@ type Response struct {
 	httpResponse *http.Response
 	rawResponse  string
 	Status       string `json:"status,omitempty"`
-	IsOk         bool
+	isOk         bool
 	Message      interface{} `json:"message,omitempty"`
 }
 
@@ -32,15 +32,15 @@ func (r *Response) SetRawResponse(response string) {
 	r.rawResponse = response
 }
 
-func (r *Response) isOk() bool {
-	return r.IsOk
+func (r *Response) IsOk() bool {
+	return r.isOk
 }
 
 func (r *Response) SetIsOk() {
 	if r.Status == "ok" {
-		r.IsOk = true
+		r.isOk = true
 	} else {
-		r.IsOk = false
+		r.isOk = false
 	}
 }
 

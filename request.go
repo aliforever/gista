@@ -14,6 +14,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/kr/pretty"
+
 	"github.com/aliforever/gista/responses"
 
 	"github.com/aliforever/gista/errors"
@@ -99,7 +101,7 @@ func (r *request) AddCSRFPost() *request {
 }
 
 func (r *request) AddPhoneIdPost() *request {
-	r.posts["phone_id"] = r.parent.instagram.PhoneId
+	r.posts["phone_id"] = r.parent.instagram.phoneId
 	return r
 }
 
@@ -129,7 +131,7 @@ func (r *request) AddIdPost() *request {
 }
 
 func (r *request) AddDeviceIdPost() *request {
-	r.posts["device_id"] = r.parent.instagram.DeviceId
+	r.posts["device_id"] = r.parent.instagram.deviceId
 	return r
 }
 
@@ -331,7 +333,7 @@ func (r *request) buildHttpRequest() (req *http.Request, err error) {
 func (r *request) getHTTPResponse() (resp *http.Response, err error) {
 	if r.httpResponse == nil {
 		if r.needsAuth {
-			if !r.parent.instagram.IsMaybeLoggedIn {
+			if !r.parent.instagram.isMaybeLoggedIn {
 				err = errors.NotLoggedIn
 				return
 			}
@@ -423,6 +425,9 @@ func (r *request) MapServerResponse(object interface{}, rawResponse string, http
 			err = errors.NoResponseFromServer
 		}
 		return
+	}
+	if !object.(responses.ResponseInterface).IsOk() {
+		pretty.Println(rawResponse)
 	}
 	return
 }

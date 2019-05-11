@@ -12,11 +12,11 @@ import (
 )
 
 type discover struct {
-	Ig *instagram
+	ig *instagram
 }
 
 func newDiscover(i *instagram) *discover {
-	return &discover{Ig: i}
+	return &discover{ig: i}
 }
 
 func (d *discover) GetExploreFeed(maxId *string, prefetch bool) (res *responses.Explore, err error) {
@@ -27,11 +27,11 @@ func (d *discover) GetExploreFeed(maxId *string, prefetch bool) (res *responses.
 	}
 	_, offset := time.Now().Zone()
 	j, _ := json.Marshal(constants.SupportedCapabilities)
-	request := d.Ig.Client.Request(constants.Explore).
+	request := d.ig.client.Request(constants.Explore).
 		AddParam("is_prefetch", p).
 		AddParam("is_from_promote", "false").
 		AddParam("timezone_offset", fmt.Sprintf("%d", offset)).
-		AddParam("session_id", d.Ig.sessionId).
+		AddParam("session_id", d.ig.sessionId).
 		AddParam("supported_capabilities_new", string(j))
 	if !prefetch {
 		if maxId == nil {
@@ -47,7 +47,7 @@ func (d *discover) GetExploreFeed(maxId *string, prefetch bool) (res *responses.
 
 func (d *discover) GetRecentSearches() (res *responses.RecentSearches, err error) {
 	res = &responses.RecentSearches{}
-	err = d.Ig.Client.Request(constants.RecentSearches).GetResponse(res)
+	err = d.ig.client.Request(constants.RecentSearches).GetResponse(res)
 	return
 }
 
@@ -63,7 +63,7 @@ func (d *discover) GetSuggestedSearches(searchType string) (res *responses.Sugge
 		return
 	}
 	res = &responses.SuggestedSearches{}
-	err = d.Ig.Client.Request(constants.SuggestedSearches).
+	err = d.ig.client.Request(constants.SuggestedSearches).
 		AddParam("type", searchType).
 		GetResponse(res)
 	return

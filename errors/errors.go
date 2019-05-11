@@ -9,7 +9,7 @@ import (
 var (
 	EmptyUsernameOrPassword       = errors.New("Please provide a username and password to login")
 	StorageNoUsernameIsSet        = errors.New("No Username is set in storage handler")
-	EmptyDeviceString             = errors.New("Device string is empty")
+	EmptyDeviceString             = errors.New("device string is empty")
 	NotLoggedIn                   = errors.New("User not logged in")
 	NoDataForStreamCreation       = errors.New("No data is provided for stream creation")
 	InvalidRequestOptions         = errors.New("Invalid request options")
@@ -21,6 +21,18 @@ var (
 	ThrottledResponse             = errors.New("Throttled by Instagram because of too many API requests.")
 	RequestHeaderTooLargeResponse = errors.New("The request start-line and/or headers are too large to process.")
 )
+
+func InvalidItem(item interface{}) error {
+	return errors.New(fmt.Sprintf("Invalid item: %+v", item))
+}
+
+func InvalidHTTPStatus(statusCode int) error {
+	return errors.New(fmt.Sprintf("Invalid http status code: %d", statusCode))
+}
+
+func UnknownItem(item interface{}) error {
+	return errors.New(fmt.Sprintf("Unknown item %+v", item))
+}
 
 func UnknownSearchType(t string) error {
 	return errors.New(fmt.Sprintf("Unknown search type %s", t))
@@ -83,11 +95,11 @@ func NotSupportedApiVersion(version int) error {
 }
 
 func NotEnoughDeviceStringResolution(deviceString, minimum string) error {
-	return errors.New(fmt.Sprintf("Device string %s does not meet the minimum required resolution %s for Instagram", deviceString, minimum))
+	return errors.New(fmt.Sprintf("device string %s does not meet the minimum required resolution %s for Instagram", deviceString, minimum))
 }
 
 func NotEnoughDeviceStringVersion(deviceString, minimum string) error {
-	return errors.New(fmt.Sprintf("Device string %s does not meet the minimum required version %s for Instagram", deviceString, minimum))
+	return errors.New(fmt.Sprintf("device string %s does not meet the minimum required version %s for Instagram", deviceString, minimum))
 }
 
 func InvalidDeviceFormat(deviceString string) error {

@@ -6,17 +6,17 @@ import (
 )
 
 type account struct {
-	Ig *instagram
+	ig *instagram
 }
 
 func newAccount(ig *instagram) (a *account) {
-	a = &account{Ig: ig}
+	a = &account{ig: ig}
 	return
 }
 
 func (a *account) Login(username, password string) (r *responses.Login, err error) {
 	r = &responses.Login{}
-	err = a.Ig.Client.Request(constants.Login).
+	err = a.ig.client.Request(constants.Login).
 		SetNeedsAuth(false).
 		AddPost("country_codes", `[{"country_code":"1","source":["default","sim"]}]`).
 		AddPhoneIdPost().
@@ -34,7 +34,7 @@ func (a *account) Login(username, password string) (r *responses.Login, err erro
 
 func (a *account) SetContactPointPreFill(usage string) (r *responses.Generic, err error) {
 	r = &responses.Generic{}
-	err = a.Ig.Client.Request(constants.ContactPointPreFill).
+	err = a.ig.client.Request(constants.ContactPointPreFill).
 		SetNeedsAuth(false).
 		AddPhoneIdPost().
 		AddCSRFPost().

@@ -1,7 +1,7 @@
 package models
 
 type MediaData struct {
-	ImageVersions2 ImageVersions2 `json:"image_versions_2"`
+	ImageVersions2 ImageVersions2 `json:"image_versions2"`
 	OriginalWidth  int            `json:"original_width"`
 	OriginalHeight int            `json:"original_height"`
 	/*

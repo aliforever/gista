@@ -6,22 +6,22 @@ import (
 )
 
 type direct struct {
-	Ig *instagram
+	ig *instagram
 }
 
 func newDirect(i *instagram) *direct {
-	return &direct{Ig: i}
+	return &direct{ig: i}
 }
 
 func (p *direct) GetPresences() (res *responses.Presences, err error) {
 	res = &responses.Presences{}
-	err = p.Ig.Client.Request(constants.Presence).GetResponse(res)
+	err = p.ig.client.Request(constants.Presence).GetResponse(res)
 	return
 }
 
 func (p *direct) GetInbox(cursorId *string) (res *responses.DirectInbox, err error) {
 	res = &responses.DirectInbox{}
-	req := p.Ig.Client.Request(constants.DirectInbox).AddParam("persistentBadging", "true").AddParam("use_unified_inbox", "true")
+	req := p.ig.client.Request(constants.DirectInbox).AddParam("persistentBadging", "true").AddParam("use_unified_inbox", "true")
 	if cursorId != nil {
 		req.AddParam("cursor", *cursorId)
 	}
@@ -35,7 +35,7 @@ func (p *direct) GetRankedRecipients(mode string, showThreads bool, query *strin
 	if showThreads {
 		showThreadsStr = "true"
 	}
-	req := p.Ig.Client.Request(constants.DirectRankedRecipients).AddParam("mode", mode).AddParam("show_threads", showThreadsStr).AddParam("use_unified_inbox", "true")
+	req := p.ig.client.Request(constants.DirectRankedRecipients).AddParam("mode", mode).AddParam("show_threads", showThreadsStr).AddParam("use_unified_inbox", "true")
 	if query != nil {
 		req.AddParam("query", *query)
 	}

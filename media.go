@@ -6,15 +6,15 @@ import (
 )
 
 type media struct {
-	Ig *instagram
+	ig *instagram
 }
 
 func newMedia(i *instagram) *media {
-	return &media{Ig: i}
+	return &media{ig: i}
 }
 
 func (m *media) GetBlockedMedia() (res *responses.BlockedMedia, err error) {
 	res = &responses.BlockedMedia{}
-	err = m.Ig.Client.Request(constants.BlockedMedia).GetResponse(res)
+	err = m.ig.client.Request(constants.BlockedMedia).GetResponse(res)
 	return
 }

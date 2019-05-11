@@ -11,21 +11,21 @@ import (
 )
 
 type timeline struct {
-	Ig *instagram
+	ig *instagram
 }
 
 func newTimeline(i *instagram) *timeline {
-	return &timeline{Ig: i}
+	return &timeline{ig: i}
 }
 
 func (t *timeline) GetTimelineFeed(maxId *string, options map[string]interface{}) (res *responses.TimelineFeed, err error) {
 	res = &responses.TimelineFeed{}
 	_, offset := time.Now().Zone()
-	asyncAds := t.Ig.IsExperimentEnabled("ig_android_ad_async_ads_universe", "is_enabled", false)
-	asyncAds2 := t.Ig.IsExperimentEnabled("ig_android_ad_async_ads_universe", "is_async_ads_in_headload_enabled", false)
-	asyncAds3 := t.Ig.IsExperimentEnabled("ig_android_ad_async_ads_universe", "is_double_request_enabled", false)
-	asyncAds4 := t.Ig.IsExperimentEnabled("ig_android_ad_async_ads_universe", "is_rti_enabled", false)
-	asyncAds5 := t.Ig.IsExperimentEnabled("ig_android_ad_async_ads_universe", "rti_delivery_backend", false)
+	asyncAds := t.ig.isExperimentEnabled("ig_android_ad_async_ads_universe", "is_enabled", false)
+	asyncAds2 := t.ig.isExperimentEnabled("ig_android_ad_async_ads_universe", "is_async_ads_in_headload_enabled", false)
+	asyncAds3 := t.ig.isExperimentEnabled("ig_android_ad_async_ads_universe", "is_double_request_enabled", false)
+	asyncAds4 := t.ig.isExperimentEnabled("ig_android_ad_async_ads_universe", "is_rti_enabled", false)
+	asyncAds5 := t.ig.isExperimentEnabled("ig_android_ad_async_ads_universe", "rti_delivery_backend", false)
 	asyncAdsStr := "0"
 	if asyncAds && asyncAds2 {
 		asyncAdsStr = "1"
@@ -42,18 +42,18 @@ func (t *timeline) GetTimelineFeed(maxId *string, options map[string]interface{}
 	if asyncAds && asyncAds5 {
 		asyncAdsStr4 = "1"
 	}
-	request := t.Ig.Client.Request(constants.TimelineFeed).
+	request := t.ig.client.Request(constants.TimelineFeed).
 		SetSignedPost(false).
 		SetIsBodyCompressed(true).
 		AddHeader("X-Ads-Opt-Out", "0").
-		AddHeader("X-Google-AD-ID", t.Ig.advertisingId).
-		AddHeader("X-DEVICE-ID", t.Ig.Uuid).
+		AddHeader("X-Google-AD-ID", t.ig.advertisingId).
+		AddHeader("X-DEVICE-ID", t.ig.Uuid).
 		AddCSRFPost().
 		AddUuIdPost().
 		AddPost("is_prefetch", "0").
 		AddPhoneIdPost().
 		AddDeviceIdPost().
-		AddPost("client_session_id", t.Ig.sessionId).
+		AddPost("client_session_id", t.ig.sessionId).
 		AddPost("battery_level", fmt.Sprintf("%d", utils.MtRand(25, 100))).
 		AddPost("is_charging", "0").
 		AddPost("will_sound_on", "1").

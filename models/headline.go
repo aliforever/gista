@@ -6,7 +6,7 @@ type Headline struct {
 	UserId       string      `json:"user_id"`
 	Pk           string      `json:"pk"`
 	Text         string      `json:"text"`
-	Type         interface{} `json:"type"`
+	Type         int         `json:"type"`
 	CreatedAt    string      `json:"created_at"`
 	CreatedAtUtc string      `json:"created_at_utc"`
 	MediaId      string      `json:"media_id"`

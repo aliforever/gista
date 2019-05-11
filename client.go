@@ -97,10 +97,10 @@ func (c *client) api(request *http.Request) (resp *http.Response, err error) {
 }
 
 func (c *client) UpdateFromCurrentSettings(resetCookieJar bool) {
-	c.userAgent = c.instagram.Device.GetUserAgent()
+	c.userAgent = c.instagram.device.GetUserAgent()
 	c.LoadCookieJar(resetCookieJar)
 	if c.GetToken() == nil {
-		c.instagram.IsMaybeLoggedIn = false
+		c.instagram.isMaybeLoggedIn = false
 	}
 }
 

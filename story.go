@@ -8,17 +8,17 @@ import (
 )
 
 type story struct {
-	Ig *instagram
+	ig *instagram
 }
 
 func newStory(i *instagram) *story {
-	return &story{Ig: i}
+	return &story{ig: i}
 }
 
 func (s *story) GetReelsTrayFeed() (res *responses.ReelsTrayFeed, err error) {
 	res = &responses.ReelsTrayFeed{}
 	cps, _ := json.Marshal(constants.SupportedCapabilities)
-	err = s.Ig.Client.Request(constants.ReelsTrayFeed).
+	err = s.ig.client.Request(constants.ReelsTrayFeed).
 		SetSignedPost(false).
 		AddPost("supported_capabilities_new", string(cps)).
 		AddPost("reason", "pull_to_refresh").

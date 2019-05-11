@@ -21,19 +21,19 @@ import (
 const experimentsRefresh int = 7200
 
 type instagram struct {
-	Device               devices.DeviceInterface
+	device               devices.DeviceInterface
 	Username             string
 	Password             string
 	Settings             *storage_handler.StorageHandler
-	Client               *client
+	client               *client
 	Uuid                 string
 	advertisingId        string
-	DeviceId             string
+	deviceId             string
 	AccountId            *string
-	PhoneId              string
+	phoneId              string
 	sessionId            string
 	experiments          map[string]map[string]string
-	IsMaybeLoggedIn      bool
+	isMaybeLoggedIn      bool
 	httpResponseInResult bool
 	rawResponseInResult  bool
 	//Properties
@@ -51,15 +51,15 @@ type instagram struct {
 func New(storageConfig *map[string]string) (i *instagram, err error) {
 	rand.Seed(time.Now().UTC().UnixNano())
 	i = &instagram{}
-	/*i.Device = devices.NewDevice(constants.IgVersion, constants.VersionCode, constants.UserAgentLocale, "")
-	if i.Device.GetDeviceString() == "" {
-		i.Device.SetDeviceString(good_devices.GetRandomGoodDevice())
+	/*i.device = devices.NewDevice(constants.IgVersion, constants.VersionCode, constants.UserAgentLocale, "")
+	if i.device.GetDeviceString() == "" {
+		i.device.SetDeviceString(good_devices.GetRandomGoodDevice())
 	}*/
 	i.Settings, err = factory.CreateHandler(storageConfig)
 	if err != nil {
 		return
 	}
-	i.Client = newClient(i)
+	i.client = newClient(i)
 	i.Internal = newInternal(i)
 	i.Account = newAccount(i)
 	i.Timeline = newTimeline(i)
@@ -72,7 +72,7 @@ func New(storageConfig *map[string]string) (i *instagram, err error) {
 	return
 }
 
-func (i *instagram) IsExperimentEnabled(experiment, param string, defaultVal bool /*false*/) bool {
+func (i *instagram) isExperimentEnabled(experiment, param string, defaultVal bool /*false*/) bool {
 	if i.experiments == nil {
 		return false
 	}
@@ -102,8 +102,8 @@ func (i *instagram) setUser(username, password string) (err error) {
 	if err == nil && savedDeviceString != "" {
 		dstr = &savedDeviceString
 	}
-	i.Device = devices.NewDevice(constants.IgVersion, constants.VersionCode, constants.UserAgentLocale, dstr, true)
-	deviceString := i.Device.GetDeviceString()
+	i.device = devices.NewDevice(constants.IgVersion, constants.VersionCode, constants.UserAgentLocale, dstr, true)
+	deviceString := i.device.GetDeviceString()
 	uuId, _ := i.Settings.Get("uuid")
 	phoneId, _ := i.Settings.Get("phone_id")
 	deviceId, _ := i.Settings.Get("device_id")
@@ -151,19 +151,19 @@ func (i *instagram) setUser(username, password string) (err error) {
 	i.Password = password
 	i.Uuid, _ = i.Settings.Get("uuid")
 	i.advertisingId, _ = i.Settings.Get("advertising_id")
-	i.DeviceId, _ = i.Settings.Get("device_id")
-	i.PhoneId, _ = i.Settings.Get("phone_id")
+	i.deviceId, _ = i.Settings.Get("device_id")
+	i.phoneId, _ = i.Settings.Get("phone_id")
 	i.sessionId, _ = i.Settings.Get("session_id")
 	/*i.experiments, _ = i.Settings.Get("Uuid")*/
 	if !resetCookieJar && i.Settings.IsMaybeLoggedIn() {
-		i.IsMaybeLoggedIn = true
+		i.isMaybeLoggedIn = true
 		accId, _ := i.Settings.Get("account_id")
 		i.AccountId = &accId
 	} else {
-		i.IsMaybeLoggedIn = false
+		i.isMaybeLoggedIn = false
 		i.AccountId = nil
 	}
-	i.Client.UpdateFromCurrentSettings(resetCookieJar)
+	i.client.UpdateFromCurrentSettings(resetCookieJar)
 	return nil
 }
 
@@ -177,7 +177,7 @@ func (i *instagram) login(user, password string, appRefreshInterval int /*1800*/
 			return
 		}
 	}
-	if !i.IsMaybeLoggedIn || forceLogin {
+	if !i.isMaybeLoggedIn || forceLogin {
 		i.sendPreLoginFlow()
 		var loginResponse *responses.Login
 		//i.SetAddHTTPResponseToResult(true)
@@ -236,7 +236,7 @@ func (i *instagram) sendLoginFlow(justLoggedIn bool, appRefreshInterval int /*18
 		i.Direct.GetInbox(nil)
 		i.Direct.GetPresences()
 		i.People.GetRecentActivityInbox()
-		experimentParam := i.GetExperimentParam("ig_android_loom_universe", "cpu_sampling_rate_ms", "0")
+		experimentParam := i.getExperimentParam("ig_android_loom_universe", "cpu_sampling_rate_ms", "0")
 		experimentParamInt, _ := strconv.Atoi(experimentParam)
 		if experimentParamInt > 0 {
 			i.Internal.GetLoomFetchConfig()
@@ -293,16 +293,16 @@ func (i *instagram) sendLoginFlow(justLoggedIn bool, appRefreshInterval int /*18
 			reason = "token_stale"
 		}
 		if expired > 0 {
-			i.Client.ZeroRating().Reset()
+			i.client.ZeroRating().Reset()
 			i.Internal.FetchZeroRatingToken(reason)
 		}
 	}
-	err = i.Client.SaveCookieJar()
+	err = i.client.SaveCookieJar()
 	// Left Here
 	return
 }
 
-func (i *instagram) GetExperimentParam(experiment, param string, def string) string {
+func (i *instagram) getExperimentParam(experiment, param string, def string) string {
 	if _, ok := i.experiments[experiment]; ok {
 		if _, ok := i.experiments[experiment][param]; ok {
 			return i.experiments[experiment][param]
@@ -354,12 +354,12 @@ func (i *instagram) sendPreLoginFlow() {
 	return NewRequest(i, address)
 }*/
 func (i *instagram) updateLoginState(loginResponse *responses.Login) (err error) {
-	if !loginResponse.IsOk {
+	if !loginResponse.IsOk() {
 		m, _ := loginResponse.GetMessage()
 		err = errors.InvalidLoginResponse(m)
 		return
 	}
-	i.IsMaybeLoggedIn = true
+	i.isMaybeLoggedIn = true
 	stringId := fmt.Sprintf("%d", loginResponse.LoggedInUser.Pk)
 	i.AccountId = &stringId
 	i.Settings.Set("account_id", stringId)

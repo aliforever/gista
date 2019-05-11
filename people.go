@@ -8,11 +8,11 @@ import (
 )
 
 type people struct {
-	Ig *instagram
+	ig *instagram
 }
 
 func newPeople(i *instagram) *people {
-	return &people{Ig: i}
+	return &people{ig: i}
 }
 
 func (p *people) GetBootstrapUsers() (res *responses.BootstrapUsers, err error) {
@@ -25,12 +25,12 @@ func (p *people) GetBootstrapUsers() (res *responses.BootstrapUsers, err error) 
 		"autocomplete_user_list",
 	}
 	j, _ := json.Marshal(surfaces)
-	err = p.Ig.Client.Request(constants.BootstrapUsers).AddParam("surfaces", string(j)).GetResponse(res)
+	err = p.ig.client.Request(constants.BootstrapUsers).AddParam("surfaces", string(j)).GetResponse(res)
 	return
 }
 
 func (p *people) GetRecentActivityInbox() (res *responses.ActivityNews, err error) {
 	res = &responses.ActivityNews{}
-	err = p.Ig.Client.Request(constants.ActivityNews).GetResponse(res)
+	err = p.ig.client.Request(constants.ActivityNews).GetResponse(res)
 	return
 }

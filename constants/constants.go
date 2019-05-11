@@ -77,4 +77,8 @@ var (
 	FeedDirect        = 4
 	FeedDirectStory   = 5
 	FeedTv            = 6
+	DownloadPaths     = map[string]string{
+		"photo": "downloads/photos",
+		"video": "downloads/videos",
+	}
 )

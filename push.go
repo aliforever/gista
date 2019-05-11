@@ -7,11 +7,11 @@ import (
 )
 
 type push struct {
-	Ig *instagram
+	ig *instagram
 }
 
 func newPush(i *instagram) *push {
-	return &push{Ig: i}
+	return &push{ig: i}
 }
 
 func (p *push) Register(pushChannel, token string) (res *responses.PushRegister, err error) {
@@ -28,7 +28,7 @@ func (p *push) Register(pushChannel, token string) (res *responses.PushRegister,
 	if pushChannel == "mqtt" {
 		mainPushChannel = "true"
 	}
-	err = p.Ig.Client.Request(constants.PushRegister).
+	err = p.ig.client.Request(constants.PushRegister).
 		SetSignedPost(false).
 		AddPost("device_type", dt).
 		AddPost("is_main_push_channel", mainPushChannel).
@@ -37,7 +37,7 @@ func (p *push) Register(pushChannel, token string) (res *responses.PushRegister,
 		AddCSRFPost().
 		AddGuIdPost().
 		AddUuIdPost().
-		AddPost("users", *p.Ig.AccountId).
+		AddPost("users", *p.ig.AccountId).
 		GetResponse(res)
 	return
 }
