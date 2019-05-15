@@ -1,6 +1,8 @@
 package gista
 
 import (
+	"encoding/json"
+
 	"github.com/aliforever/gista/constants"
 	"github.com/aliforever/gista/errors"
 	"github.com/aliforever/gista/responses"
@@ -87,9 +89,39 @@ func (a *account) SetPrivate() (r *responses.UserInfo, err error) {
 	return
 }
 
+func (a *account) SetBusinessInfo(phoneNumber, email, categoryId string) (r *responses.UserInfo, err error) {
+	r = &responses.UserInfo{}
+	ppc, _ := json.Marshal(map[string]string{
+		"public_phone_number":     phoneNumber,
+		"business_contact_method": "CALL",
+	})
+	err = a.ig.client.Request(constants.CreateBusinessInfo).
+		AddPost("set_public", "true").
+		AddPost("entry_point", "setting").
+		AddPost("public_phone_contact", string(ppc)).
+		AddPost("public_email", email).
+		AddPost("category_id", categoryId).
+		AddUuIdPost().
+		AddUIdPost().
+		AddCSRFPost().
+		GetResponse(r)
+	return
+}
+
 func (a *account) SwitchToBusinessProfile() (r *responses.UserInfo, err error) {
 	r = &responses.UserInfo{}
 	err = a.ig.client.Request(constants.SwitchToBusinessProfile).
+		GetResponse(r)
+	return
+}
+
+func (a *account) CheckUsername(username string) (r *responses.CheckUsername, err error) {
+	r = &responses.CheckUsername{}
+	err = a.ig.client.Request(constants.CheckUsername).
+		AddUIdPost().
+		AddUuIdPost().
+		AddCSRFPost().
+		AddPost("username", username).
 		GetResponse(r)
 	return
 }
