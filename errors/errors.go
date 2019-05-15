@@ -22,6 +22,10 @@ var (
 	RequestHeaderTooLargeResponse = errors.New("The request start-line and/or headers are too large to process.")
 )
 
+func InvalidBiography(bio string) error {
+	return errors.New(fmt.Sprintf("Invalid biography %s, Please provide a 0 to 150 character string as biography.", bio))
+}
+
 func InvalidItem(item interface{}) error {
 	return errors.New(fmt.Sprintf("Invalid item: %+v", item))
 }

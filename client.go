@@ -72,7 +72,6 @@ func (c *client) api(request *http.Request) (resp *http.Response, err error) {
 	request.Header.Set("Accept-Encoding", constants.AcceptEncoding)
 	request.Header.Set("Accept-Language", constants.AcceptLanguage)
 
-	//contentType := request.Header.Get("Content-Type")
 	if c.cookieJar != nil {
 		c.client.Jar = c.cookieJar
 	}

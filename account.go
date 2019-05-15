@@ -2,6 +2,7 @@ package gista
 
 import (
 	"github.com/aliforever/gista/constants"
+	"github.com/aliforever/gista/errors"
 	"github.com/aliforever/gista/responses"
 )
 
@@ -28,6 +29,120 @@ func (a *account) Login(username, password string) (r *responses.Login, err erro
 		AddDeviceIdPost().
 		AddPost("google_tokens", "[]").
 		AddPost("login_attempt_count", "0").
+		GetResponse(r)
+	return
+}
+
+func (a *account) GetCurrentUser() (r *responses.UserInfo, err error) {
+	r = &responses.UserInfo{}
+	err = a.ig.client.Request(constants.CurrentUser).
+		AddParam("edit", "true").
+		GetResponse(r)
+	return
+}
+
+func (a *account) ChangeProfilePicture(photoFileName string) (r *responses.UserInfo, err error) {
+	r = &responses.UserInfo{}
+
+	req := a.ig.client.Request(constants.ChangeProfilePicture).
+		AddUuIdPost().
+		AddUIdPost().
+		AddCSRFPost()
+	fileName := "profile_pic"
+	req, err = req.AddFile("profile_pic", photoFileName, &fileName, nil)
+	if err != nil {
+		return
+	}
+	err = req.GetResponse(r)
+	return
+}
+
+func (a *account) RemoveProfilePicture() (r *responses.UserInfo, err error) {
+	r = &responses.UserInfo{}
+	err = a.ig.client.Request(constants.RemoveProfilePicture).
+		AddUuIdPost().
+		AddUIdPost().
+		AddCSRFPost().
+		GetResponse(r)
+	return
+}
+
+func (a *account) SetPublic() (r *responses.UserInfo, err error) {
+	r = &responses.UserInfo{}
+	err = a.ig.client.Request(constants.SetPublic).
+		AddUuIdPost().
+		AddUIdPost().
+		AddCSRFPost().
+		GetResponse(r)
+	return
+}
+
+func (a *account) SetPrivate() (r *responses.UserInfo, err error) {
+	r = &responses.UserInfo{}
+	err = a.ig.client.Request(constants.SetPrivate).
+		AddUuIdPost().
+		AddUIdPost().
+		AddCSRFPost().
+		GetResponse(r)
+	return
+}
+
+func (a *account) SwitchToBusinessProfile() (r *responses.UserInfo, err error) {
+	r = &responses.UserInfo{}
+	err = a.ig.client.Request(constants.SwitchToBusinessProfile).
+		GetResponse(r)
+	return
+}
+
+func (a *account) SwitchToPersonalProfile() (r *responses.SwitchPersonalProfile, err error) {
+	r = &responses.SwitchPersonalProfile{}
+	err = a.ig.client.Request(constants.SwitchToPersonalProfile).
+		AddUuIdPost().
+		AddUIdPost().
+		AddCSRFPost().
+		GetResponse(r)
+	return
+}
+
+func (a *account) SetBiography(biography string) (r *responses.UserInfo, err error) {
+	if len(biography) > 150 {
+		err = errors.InvalidBiography(biography)
+		return
+	}
+	r = &responses.UserInfo{}
+	err = a.ig.client.Request(constants.SetBiography).
+		AddPost("raw_text", biography).
+		AddUuIdPost().
+		AddUIdPost().
+		AddDeviceIdPost().
+		AddCSRFPost().
+		GetResponse(r)
+	return
+}
+
+func (a *account) EditProfile(url, phone, name, biography, email, gender string, newUsername *string) (r *responses.UserInfo, err error) {
+	var currentUser *responses.UserInfo
+	currentUser, err = a.GetCurrentUser()
+	if err != nil {
+		return
+	}
+	username := currentUser.User.Username
+	if newUsername != nil && len(*newUsername) > 0 {
+		username = *newUsername
+	}
+	r = &responses.UserInfo{}
+	err = a.ig.client.Request(constants.EditProfile).
+		AddPost("external_url", url).
+		AddPost("phone_number", phone).
+		AddPost("username", username).
+		AddPost("first_name", name).
+		AddPost("biography", biography).
+		AddPost("email", email).
+		AddPost("gender", gender).
+		AddUuIdPost().
+		AddUIdPost().
+		AddDeviceIdPost().
+		AddCSRFPost().
 		GetResponse(r)
 	return
 }

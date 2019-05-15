@@ -14,6 +14,15 @@ const FacebookOTA string = "facebook_ota/"
 // Account
 const ContactPointPreFill string = "accounts/contact_point_prefill/"
 const Login string = "accounts/login/"
+const CurrentUser string = "accounts/current_user/"
+const SetBiography string = "accounts/set_biography/"
+const EditProfile string = "accounts/set_biography/"
+const ChangeProfilePicture string = "accounts/change_profile_picture/"
+const RemoveProfilePicture string = "accounts/remove_profile_picture/"
+const SetPublic string = "accounts/set_public/"
+const SetPrivate string = "accounts/set_private/"
+const SwitchToBusinessProfile string = "business_conversion/get_business_convert_social_context/"
+const SwitchToPersonalProfile string = "business_conversion/convert_to_personal/"
 
 // Timeline
 const TimelineFeed string = "feed/timeline/"

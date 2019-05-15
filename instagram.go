@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/aliforever/gista/settings/factory"
+
 	"github.com/aliforever/gista/utils"
 
 	"github.com/aliforever/gista/responses"
@@ -13,7 +15,6 @@ import (
 	"github.com/aliforever/gista/constants"
 	"github.com/aliforever/gista/devices"
 	"github.com/aliforever/gista/errors"
-	"github.com/aliforever/gista/settings/factory"
 	storage_handler "github.com/aliforever/gista/settings/storage-handler"
 	"github.com/aliforever/gista/signatures"
 )
@@ -37,38 +38,55 @@ type instagram struct {
 	httpResponseInResult bool
 	rawResponseInResult  bool
 	//Properties
-	Internal *internal
-	Account  *account
-	Timeline *timeline
-	Story    *story
-	Discover *discover
-	Push     *push
-	Direct   *direct
-	People   *people
-	Media    *media
+	Account    *account
+	Business   *business
+	Collection *collection
+	Creative   *creative
+	Direct     *direct
+	Hashtag    *hashtag
+	Highlight  *highlight
+	Tv         *tv
+	Internal   *internal
+	Live       *live
+	Location   *location
+	Media      *media
+	People     *people
+	Push       *push
+	Shopping   *shopping
+	Story      *story
+	Timeline   *timeline
+	Usertag    *usertag
+	Discover   *discover
 }
 
 func New(storageConfig *map[string]string) (i *instagram, err error) {
 	rand.Seed(time.Now().UTC().UnixNano())
 	i = &instagram{}
-	/*i.device = devices.NewDevice(constants.IgVersion, constants.VersionCode, constants.UserAgentLocale, "")
-	if i.device.GetDeviceString() == "" {
-		i.device.SetDeviceString(good_devices.GetRandomGoodDevice())
-	}*/
+	i.Account = newAccount(i)
+	i.Business = newBusiness(i)
+	i.Collection = newCollection(i)
+	i.Creative = newCreative(i)
+	i.Direct = newDirect(i)
+	i.Discover = newDiscover(i)
+	i.Hashtag = newHashtag(i)
+	i.Highlight = newHighlight(i)
+	i.Tv = newTv(i)
+	i.Internal = newInternal(i)
+	i.Live = newLive(i)
+	i.Location = newLocation(i)
+	i.Media = newMedia(i)
+	i.People = newPeople(i)
+	i.Push = newPush(i)
+	i.Shopping = newShopping(i)
+	i.Story = newStory(i)
+	i.Timeline = newTimeline(i)
+	i.Usertag = newUsertag(i)
+	i.client = newClient(i)
 	i.Settings, err = factory.CreateHandler(storageConfig)
 	if err != nil {
 		return
 	}
-	i.client = newClient(i)
-	i.Internal = newInternal(i)
-	i.Account = newAccount(i)
-	i.Timeline = newTimeline(i)
-	i.Story = newStory(i)
-	i.Discover = newDiscover(i)
-	i.Push = newPush(i)
-	i.Direct = newDirect(i)
-	i.People = newPeople(i)
-	i.Media = newMedia(i)
+	i.experiments = map[string]map[string]string{}
 	return
 }
 

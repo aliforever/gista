@@ -19,7 +19,7 @@ type User struct {
 	IsVerified                     bool                 `json:"is_verified,omitempty"`
 	IsPrivate                      bool                 `json:"is_private,omitempty"`
 	CoeffWeight                    interface{}          `json:"coeff_weight,omitempty"`
-	FriendshipStatus               FriendshipStatus     `json:"friendship_status,omitempty"`
+	FriendshipStatus               *FriendshipStatus    `json:"friendship_status,omitempty"`
 	HdProfilePicVersions           []ImageCandidate     `json:"hd_profile_pic_versions,omitempty"`
 	Byline                         interface{}          `json:"byline,omitempty"`
 	SearchSocialContext            interface{}          `json:"search_social_context,omitempty"`

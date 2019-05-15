@@ -9,10 +9,12 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/kr/pretty"
 
@@ -33,7 +35,7 @@ type request struct {
 	headers          map[string]string
 	posts            map[string]string
 	defaultHeaders   bool
-	files            map[string]map[string]*interface{}
+	files            map[string]map[string]interface{}
 	needsAuth        bool
 	signedGet        bool
 	signedPost       bool
@@ -51,7 +53,7 @@ func newRequest(address string, parent *client) (r *request) {
 	r.headers = map[string]string{}
 	r.params = map[string]string{}
 	r.posts = map[string]string{}
-	r.files = map[string]map[string]*interface{}{}
+	r.files = map[string]map[string]interface{}{}
 	r.handles = map[string]io.Reader{}
 	r.needsAuth = true
 	r.signedGet = false
@@ -143,6 +145,28 @@ func (r *request) AddPost(key, val string) *request {
 	return r
 }
 
+func (r *request) AddFile(key, filePath string, fileName *string, headers map[string]string) (*request, error) {
+	if !utils.FileOrFolderExists(filePath) {
+		return r, errors.PathNotExist(filePath)
+	}
+	if fileName == nil {
+		fileName = &filePath
+	}
+	name := filepath.Base(*fileName)
+	fileName = &name
+	if headers == nil {
+		headers = map[string]string{}
+	}
+	headers["Content-Type"] = "application/octet-stream"
+	headers["Content-Transfer-Encoding"] = "binary"
+	r.files[key] = map[string]interface{}{
+		"filepath": filePath,
+		"filename": *fileName,
+		"headers":  headers,
+	}
+	return r, nil
+}
+
 func (r *request) resetHandles() {
 	r.handles = map[string]io.Reader{}
 }
@@ -186,7 +210,7 @@ func (r *request) SetNeedsAuth(needs bool) *request {
 	return r
 }
 
-func (r *request) getRequestBody() (body io.Reader, err error) {
+func (r *request) getRequestBody() (body io.Reader, contentType string, err error) {
 	if r.body != nil {
 		if r.isBodyCompressed {
 			//
@@ -203,7 +227,7 @@ func (r *request) getRequestBody() (body io.Reader, err error) {
 	if len(r.files) == 0 {
 		body = r.getUrlEncodedBody()
 	} else {
-		body, err = r.getMultiPartBody()
+		body, contentType, err = r.getMultiPartBody()
 	}
 	if r.isBodyCompressed {
 		//ZLIB Encode Body
@@ -211,7 +235,7 @@ func (r *request) getRequestBody() (body io.Reader, err error) {
 	return
 }
 
-func (r *request) getMultiPartBody() (body *bytes.Buffer, err error) {
+func (r *request) getMultiPartBody() (body *bytes.Buffer, contentType string, err error) {
 	newMap := map[string]interface{}{}
 	for k, v := range r.files {
 		newMap[k] = v
@@ -228,17 +252,17 @@ func (r *request) getMultiPartBody() (body *bytes.Buffer, err error) {
 		} else {
 			fileMap := r.files[k]
 			if fileMap["contents"] != nil {
-				part, partErr := writer.CreateFormFile(k, filepath.Base((*fileMap["filepath"]).(string)))
+				part, partErr := writer.CreateFormFile(k, filepath.Base((fileMap["filepath"]).(string)))
 				if partErr != nil {
-					err = errors.CannotCreateFormFieldFromFile((*fileMap["filepath"]).(string), partErr.Error())
+					err = errors.CannotCreateFormFieldFromFile((fileMap["filepath"]).(string), partErr.Error())
 					return
 				}
-				_, err = io.Copy(part, bytes.NewReader((*fileMap["filepath"]).([]byte)))
+				_, err = io.Copy(part, bytes.NewReader((fileMap["filepath"]).([]byte)))
 				if err != nil {
 					return
 				}
 			} else if fileMap["filepath"] != nil {
-				filePath := (*fileMap["filepath"]).(string)
+				filePath := (fileMap["filepath"]).(string)
 				file, fErr := os.Open(filePath)
 				if fErr != nil {
 					err = errors.CannotOpenFile(filePath, fErr.Error())
@@ -251,7 +275,7 @@ func (r *request) getMultiPartBody() (body *bytes.Buffer, err error) {
 						v.(*os.File).Close()
 					}
 				}*/
-				part, partErr := writer.CreateFormFile(k, filepath.Base(filePath))
+				part, partErr := writer.CreateFormFile(k, fileMap["filename"].(string))
 				if partErr != nil {
 					err = errors.CannotCreateFormFieldFromFile(filePath, partErr.Error())
 					return
@@ -266,7 +290,7 @@ func (r *request) getMultiPartBody() (body *bytes.Buffer, err error) {
 			}
 		}
 	}
-
+	contentType = writer.FormDataContentType()
 	// ReorderByHashCodeNeededForPosts
 	err = writer.Close()
 	return
@@ -308,7 +332,7 @@ func (r *request) buildHttpRequest() (req *http.Request, err error) {
 	}
 	r.addDefaultHeaders()
 
-	postData, err := r.getRequestBody()
+	postData, contentType, err := r.getRequestBody()
 	r.closeHandles()
 	if err != nil {
 		err = errors.ErrorBuildingHTTPRequest(err.Error())
@@ -326,6 +350,9 @@ func (r *request) buildHttpRequest() (req *http.Request, err error) {
 		for k, v := range r.headers {
 			req.Header.Set(k, v)
 		}
+	}
+	if contentType != "" {
+		req.Header.Set("Content-Type", contentType)
 	}
 	return
 }
@@ -347,6 +374,13 @@ func (r *request) getHTTPResponse() (resp *http.Response, err error) {
 		if err != nil {
 			err = errors.ErrorBuildingHTTPRequest(err.Error())
 			return
+		}
+		dump, dumpErr := httputil.DumpRequest(req, true)
+		if dumpErr == nil {
+			filePrefix := fmt.Sprintf("%s_%s", time.Now().Format("20060102-150405"), req.Method)
+			if err := ioutil.WriteFile(filePrefix+"_request.dump", dump, 0644); err != nil {
+				fmt.Println(err)
+			}
 		}
 		r.httpResponse, err = r.parent.api(req)
 		if err != nil {
