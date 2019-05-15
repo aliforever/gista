@@ -6,7 +6,7 @@ libraries.
 
 ## Installation
 ```sh
-go get https://github.com/aliforever/gista
+go get github.com/aliforever/gista
 ```
 ```go
 package main
