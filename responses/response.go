@@ -14,6 +14,7 @@ type Response struct {
 	Status       string `json:"status,omitempty"`
 	isOk         bool
 	Message      interface{} `json:"message,omitempty"`
+	ErrorType    *string     `json:"error_type,omitempty"`
 }
 
 func (r *Response) GetHTTPResponse() *http.Response {
@@ -42,6 +43,10 @@ func (r *Response) SetIsOk() {
 	} else {
 		r.isOk = false
 	}
+}
+
+func (r *Response) GetErrorType() (str *string) {
+	return r.ErrorType
 }
 
 func (r *Response) GetMessage() (str string, err error) {

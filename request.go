@@ -16,8 +16,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kr/pretty"
-
 	"github.com/aliforever/gista/responses"
 
 	"github.com/aliforever/gista/errors"
@@ -461,7 +459,11 @@ func (r *request) MapServerResponse(object interface{}, rawResponse string, http
 		return
 	}
 	if !object.(responses.ResponseInterface).IsOk() {
-		pretty.Println(rawResponse)
+		message, mErr := object.(responses.ResponseInterface).GetMessage()
+		if mErr != nil {
+			err = mErr
+			return
+		}
 	}
 	return
 }

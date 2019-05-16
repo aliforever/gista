@@ -7,4 +7,6 @@ type ResponseInterface interface {
 	SetRawResponse(raw string)
 	SetIsOk()
 	IsOk() bool
+	GetMessage() (string, error)
+	GetErrorType() *string
 }
