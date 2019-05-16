@@ -6,10 +6,10 @@ import (
 )
 
 type tv struct {
-	ig *instagram
+	ig *Instagram
 }
 
-func newTv(i *instagram) *tv {
+func newTv(i *Instagram) *tv {
 	return &tv{ig: i}
 }
 

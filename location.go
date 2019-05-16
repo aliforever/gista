@@ -6,10 +6,10 @@ import (
 )
 
 type location struct {
-	ig *instagram
+	ig *Instagram
 }
 
-func newLocation(i *instagram) *location {
+func newLocation(i *Instagram) *location {
 	return &location{ig: i}
 }
 

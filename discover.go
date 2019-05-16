@@ -12,10 +12,10 @@ import (
 )
 
 type discover struct {
-	ig *instagram
+	ig *Instagram
 }
 
-func newDiscover(i *instagram) *discover {
+func newDiscover(i *Instagram) *discover {
 	return &discover{ig: i}
 }
 

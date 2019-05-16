@@ -9,10 +9,10 @@ import (
 )
 
 type account struct {
-	ig *instagram
+	ig *Instagram
 }
 
-func newAccount(ig *instagram) (a *account) {
+func newAccount(ig *Instagram) (a *account) {
 	a = &account{ig: ig}
 	return
 }

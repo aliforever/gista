@@ -6,10 +6,10 @@ import (
 )
 
 type creative struct {
-	ig *instagram
+	ig *Instagram
 }
 
-func newCreative(i *instagram) *creative {
+func newCreative(i *Instagram) *creative {
 	return &creative{ig: i}
 }
 

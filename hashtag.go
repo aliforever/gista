@@ -6,10 +6,10 @@ import (
 )
 
 type hashtag struct {
-	ig *instagram
+	ig *Instagram
 }
 
-func newHashtag(i *instagram) *hashtag {
+func newHashtag(i *Instagram) *hashtag {
 	return &hashtag{ig: i}
 }
 

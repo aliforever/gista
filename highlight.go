@@ -6,10 +6,10 @@ import (
 )
 
 type highlight struct {
-	ig *instagram
+	ig *Instagram
 }
 
-func newHighlight(i *instagram) *highlight {
+func newHighlight(i *Instagram) *highlight {
 	return &highlight{ig: i}
 }
 

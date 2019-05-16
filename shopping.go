@@ -6,10 +6,10 @@ import (
 )
 
 type shopping struct {
-	ig *instagram
+	ig *Instagram
 }
 
-func newShopping(i *instagram) *shopping {
+func newShopping(i *Instagram) *shopping {
 	return &shopping{ig: i}
 }
 

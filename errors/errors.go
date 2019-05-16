@@ -147,5 +147,5 @@ func InvalidStorageVersion(version int) error {
 }
 
 func UnknownSettingsStorageType(sType string) error {
-	return errors.New(fmt.Sprintf("Unknown Settings Storage Type: %s", sType))
+	return errors.New(fmt.Sprintf("Unknown settings Storage Type: %s", sType))
 }

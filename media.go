@@ -6,10 +6,10 @@ import (
 )
 
 type media struct {
-	ig *instagram
+	ig *Instagram
 }
 
-func newMedia(i *instagram) *media {
+func newMedia(i *Instagram) *media {
 	return &media{ig: i}
 }
 

@@ -6,10 +6,10 @@ import (
 )
 
 type live struct {
-	ig *instagram
+	ig *Instagram
 }
 
-func newLive(i *instagram) *live {
+func newLive(i *Instagram) *live {
 	return &live{ig: i}
 }
 

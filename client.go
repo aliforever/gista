@@ -19,13 +19,13 @@ const cookieAutoSaveInterval int64 = 45
 type client struct {
 	userAgent          string
 	client             *http.Client
-	instagram          *instagram
+	instagram          *Instagram
 	cookieJar          *cookiejar.Jar
 	cookieJarLastSaved int64
 	zeroRating         *middleware.ZeroRating
 }
 
-func newClient(i *instagram) (c *client) {
+func newClient(i *Instagram) (c *client) {
 	c = &client{instagram: i}
 	c.client = &http.Client{}
 	c.zeroRating = middleware.NewZeroRating()
@@ -107,10 +107,10 @@ func (c *client) LoadCookieJar(resetCookieJar bool) {
 	c.cookieJar = nil
 	if resetCookieJar {
 		data := ""
-		c.instagram.Settings.SetCookies(&data)
+		c.instagram.settings.SetCookies(&data)
 	}
 	var cookies *string
-	cookies, _ = c.instagram.Settings.GetCookies()
+	cookies, _ = c.instagram.settings.GetCookies()
 
 	var restoredCookies []map[string]interface{}
 	if cookies != nil && len(*cookies) > 0 {
@@ -174,7 +174,7 @@ func (c *client) GetCookie(name string, domain *string, path *string) (cookie *h
 
 func (c *client) SaveCookieJar() (err error) {
 	newCookies, err := c.GetCookieJarAsJSON()
-	err = c.instagram.Settings.SetCookies(newCookies)
+	err = c.instagram.settings.SetCookies(newCookies)
 	if err != nil {
 		return
 	}

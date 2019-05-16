@@ -6,10 +6,10 @@ import (
 )
 
 type direct struct {
-	ig *instagram
+	ig *Instagram
 }
 
-func newDirect(i *instagram) *direct {
+func newDirect(i *Instagram) *direct {
 	return &direct{ig: i}
 }
 

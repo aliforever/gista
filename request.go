@@ -113,12 +113,12 @@ func (r *request) AddAdIdPost() *request {
 }
 
 func (r *request) AddGuIdPost() *request {
-	r.posts["guid"] = r.parent.instagram.Uuid
+	r.posts["guid"] = r.parent.instagram.uuid
 	return r
 }
 
 func (r *request) AddUuIdPost() *request {
-	r.posts["_uuid"] = r.parent.instagram.Uuid
+	r.posts["_uuid"] = r.parent.instagram.uuid
 	return r
 }
 

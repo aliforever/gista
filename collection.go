@@ -6,10 +6,10 @@ import (
 )
 
 type collection struct {
-	ig *instagram
+	ig *Instagram
 }
 
-func newCollection(i *instagram) *collection {
+func newCollection(i *Instagram) *collection {
 	return &collection{ig: i}
 }
 

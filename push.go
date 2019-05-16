@@ -7,10 +7,10 @@ import (
 )
 
 type push struct {
-	ig *instagram
+	ig *Instagram
 }
 
-func newPush(i *instagram) *push {
+func newPush(i *Instagram) *push {
 	return &push{ig: i}
 }
 

@@ -8,10 +8,10 @@ import (
 )
 
 type story struct {
-	ig *instagram
+	ig *Instagram
 }
 
-func newStory(i *instagram) *story {
+func newStory(i *Instagram) *story {
 	return &story{ig: i}
 }
 

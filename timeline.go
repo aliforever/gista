@@ -11,10 +11,10 @@ import (
 )
 
 type timeline struct {
-	ig *instagram
+	ig *Instagram
 }
 
-func newTimeline(i *instagram) *timeline {
+func newTimeline(i *Instagram) *timeline {
 	return &timeline{ig: i}
 }
 
@@ -47,7 +47,7 @@ func (t *timeline) GetTimelineFeed(maxId *string, options map[string]interface{}
 		SetIsBodyCompressed(true).
 		AddHeader("X-Ads-Opt-Out", "0").
 		AddHeader("X-Google-AD-ID", t.ig.advertisingId).
-		AddHeader("X-DEVICE-ID", t.ig.Uuid).
+		AddHeader("X-DEVICE-ID", t.ig.uuid).
 		AddCSRFPost().
 		AddUuIdPost().
 		AddPost("is_prefetch", "0").

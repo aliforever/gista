@@ -14,10 +14,10 @@ import (
 )
 
 type internal struct {
-	ig *instagram
+	ig *Instagram
 }
 
-func newInternal(ig *instagram) (i *internal) {
+func newInternal(ig *Instagram) (i *internal) {
 	i = &internal{ig: ig}
 	return
 }
@@ -42,8 +42,8 @@ func (i *internal) saveExperiments(syncResp *responses.Sync) (response *response
 		}
 	}
 
-	i.ig.experiments, err = i.ig.Settings.SetExperiments(experiments)
-	i.ig.Settings.Set("last_experiments", fmt.Sprintf("%d", time.Now().Unix()))
+	i.ig.experiments, err = i.ig.settings.SetExperiments(experiments)
+	i.ig.settings.Set("last_experiments", fmt.Sprintf("%d", time.Now().Unix()))
 	return
 }
 
@@ -56,15 +56,15 @@ func (i *internal) saveZeroRatingToken(tokenModel *models.Token) (response *resp
 		rules[r.Matcher] = r.Replacer
 	}
 	i.ig.client.ZeroRating().Update(rules)
-	err = i.ig.Settings.SetRewriteRules(rules)
+	err = i.ig.settings.SetRewriteRules(rules)
 	if err != nil {
 		return
 	}
-	err = i.ig.Settings.Set("zr_token", tokenModel.TokenHash)
+	err = i.ig.settings.Set("zr_token", tokenModel.TokenHash)
 	if err != nil {
 		return
 	}
-	err = i.ig.Settings.Set("zr_expires", fmt.Sprintf("%d", tokenModel.ExpiresAt()))
+	err = i.ig.settings.Set("zr_expires", fmt.Sprintf("%d", tokenModel.ExpiresAt()))
 	if err != nil {
 		return
 	}
@@ -81,7 +81,7 @@ func (i *internal) GetFacebookOTA() (response *responses.FacebookOta, err error)
 		AddParam("version_code", constants.VersionCode).
 		AddParam("version_name", constants.IgVersion).
 		AddParam("custom_app_id", constants.FacebookOrcaApplicationId).
-		AddParam("custom_device_id", i.ig.Uuid).
+		AddParam("custom_device_id", i.ig.uuid).
 		GetResponse(response)
 	return
 }
@@ -122,10 +122,10 @@ func (i *internal) FetchZeroRatingToken(reason string) (response *responses.Toke
 		reason = "token_expired"
 	}
 	response = &responses.TokenResult{}
-	zrToken, _ := i.ig.Settings.Get("zr_token")
+	zrToken, _ := i.ig.settings.Get("zr_token")
 	request := i.ig.client.Request(constants.ZeroRatingToken).
 		SetNeedsAuth(false).
-		AddParam("custom_device_id", i.ig.Uuid).
+		AddParam("custom_device_id", i.ig.uuid).
 		AddParam("device_id", i.ig.deviceId).
 		AddParam("fetch_reason", reason).
 		AddParam("token_hash", zrToken)
@@ -158,10 +158,10 @@ func (i *internal) SendLauncherSync(preLogin bool) (response *responses.Launcher
 		AddPost("configs", "ig_android_felix_release_players,ig_user_mismatch_soft_error,ig_android_os_version_blocking_config,ig_android_carrier_signals_killswitch,fizz_ig_android,ig_mi_block_expired_events,ig_android_killswitch_perm_direct_ssim,ig_fbns_blocked")
 	if preLogin {
 		request.SetNeedsAuth(false).
-			AddPost("id", i.ig.Uuid)
+			AddPost("id", i.ig.uuid)
 	} else {
 		request.AddPost("id", *i.ig.AccountId).
-			AddPost("_uuid", i.ig.Uuid).
+			AddPost("_uuid", i.ig.uuid).
 			AddPost("_uid", *i.ig.AccountId).
 			AddPost("_csrftoken", token)
 	}
@@ -172,8 +172,8 @@ func (i *internal) SendLauncherSync(preLogin bool) (response *responses.Launcher
 
 func (i *internal) SyncDeviceFeatures(preLogin bool) (response *responses.Sync, err error) {
 	request := i.ig.client.Request(constants.Sync).
-		AddHeader("X-DEVICE-ID", i.ig.Uuid).
-		AddPost("id", i.ig.Uuid).
+		AddHeader("X-DEVICE-ID", i.ig.uuid).
+		AddPost("id", i.ig.uuid).
 		AddPost("experiments", constants.LoginExperiments)
 	if preLogin {
 		request.SetNeedsAuth(false)
@@ -183,7 +183,7 @@ func (i *internal) SyncDeviceFeatures(preLogin bool) (response *responses.Sync, 
 		if csrfToken != nil {
 			token = *csrfToken
 		}
-		request.AddPost("_uuid", i.ig.Uuid).
+		request.AddPost("_uuid", i.ig.uuid).
 			AddPost("_uid", *i.ig.AccountId).
 			AddPost("_csrftoken", token)
 	}
@@ -195,8 +195,8 @@ func (i *internal) SyncDeviceFeatures(preLogin bool) (response *responses.Sync, 
 func (i *internal) SyncUserFeatures() (response *responses.Sync, err error) {
 	response = &responses.Sync{}
 	err = i.ig.client.Request(constants.Sync).
-		AddHeader("X-DEVICE-ID", i.ig.Uuid).
-		AddPost("id", i.ig.Uuid).
+		AddHeader("X-DEVICE-ID", i.ig.uuid).
+		AddPost("id", i.ig.uuid).
 		AddPost("experiments", constants.LoginExperiments).
 		AddUuIdPost().
 		AddUIdPost().
@@ -211,8 +211,8 @@ func (i *internal) SyncUserFeatures() (response *responses.Sync, err error) {
 func (i *internal) ReadMsisdnHeader(usage string, subNoKey *string) (response *responses.MSISDNHeader, err error) {
 	request := i.ig.client.Request(constants.MSISDN).
 		SetNeedsAuth(false).
-		AddHeader("X-DEVICE-ID", i.ig.Uuid).
-		AddPost("device_id", i.ig.Uuid).
+		AddHeader("X-DEVICE-ID", i.ig.uuid).
+		AddPost("device_id", i.ig.uuid).
 		AddPost("mobile_subno_usage", usage)
 	if subNoKey != nil {
 		request.AddPost("subno_key", *subNoKey)

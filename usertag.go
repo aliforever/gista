@@ -6,10 +6,10 @@ import (
 )
 
 type usertag struct {
-	ig *instagram
+	ig *Instagram
 }
 
-func newUsertag(i *instagram) *usertag {
+func newUsertag(i *Instagram) *usertag {
 	return &usertag{ig: i}
 }
 
