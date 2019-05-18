@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/aliforever/gista/errors"
+	"github.com/aliforever/gista/errs"
 
 	"github.com/aliforever/gista/constants"
 	"github.com/aliforever/gista/responses"
@@ -59,7 +59,7 @@ func (d *discover) GetSuggestedSearches(searchType string) (res *responses.Sugge
 		}
 	}
 	if !found {
-		err = errors.UnknownSearchType(searchType)
+		err = errs.UnknownSearchType(searchType)
 		return
 	}
 	res = &responses.SuggestedSearches{}

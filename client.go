@@ -7,9 +7,9 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/aliforever/gista/middleware"
+	"github.com/aliforever/gista/errs"
 
-	"github.com/aliforever/gista/errors"
+	"github.com/aliforever/gista/middleware"
 
 	"github.com/aliforever/gista/constants"
 )
@@ -83,10 +83,10 @@ func (c *client) api(request *http.Request) (resp *http.Response, err error) {
 	statusCode := resp.StatusCode
 	switch statusCode {
 	case 429:
-		err = errors.ThrottledResponse
+		err = errs.ThrottledResponse
 		return
 	case 431:
-		err = errors.RequestHeaderTooLargeResponse
+		err = errs.RequestHeaderTooLargeResponse
 		return
 	}
 	if time.Now().Unix()-c.cookieJarLastSaved > cookieAutoSaveInterval {
@@ -191,7 +191,7 @@ func (c *client) GetCookieJarAsJSON() (jar *string, err error) {
 	var jsonByte []byte
 	jsonByte, err = json.Marshal(mapSlice)
 	if err != nil {
-		err = errors.CannotMarshalJSON(mapSlice, err.Error())
+		err = errs.CannotMarshalJSON(mapSlice, err.Error())
 		return
 	}
 	str := string(jsonByte)

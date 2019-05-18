@@ -2,7 +2,7 @@ package gista
 
 import (
 	"github.com/aliforever/gista/constants"
-	"github.com/aliforever/gista/errors"
+	"github.com/aliforever/gista/errs"
 	"github.com/aliforever/gista/responses"
 )
 
@@ -16,7 +16,7 @@ func newPush(i *Instagram) *push {
 
 func (p *push) Register(pushChannel, token string) (res *responses.PushRegister, err error) {
 	if pushChannel != "mqtt" && pushChannel != "gcm" {
-		err = errors.BadPushChannel(pushChannel)
+		err = errs.BadPushChannel(pushChannel)
 		return
 	}
 	res = &responses.PushRegister{}

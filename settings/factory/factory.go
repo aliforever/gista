@@ -1,7 +1,7 @@
 package factory
 
 import (
-	"github.com/aliforever/gista/errors"
+	"github.com/aliforever/gista/errs"
 	storage_handler "github.com/aliforever/gista/settings/storage-handler"
 	storage_file "github.com/aliforever/gista/settings/storage/storage-file"
 )
@@ -41,7 +41,7 @@ func CreateHandler(storageConfig *map[string]string) (sh *storage_handler.Storag
 		locationConfig = map[string]string{"baseFolder": bF}
 		sInstance = &storage_file.File{}
 	default:
-		err = errors.UnknownSettingsStorageType((*storageConfig)["storage"])
+		err = errs.UnknownSettingsStorageType((*storageConfig)["storage"])
 	}
 	sh, err = storage_handler.NewStorageHandler(sInstance, locationConfig)
 	return

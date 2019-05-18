@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/aliforever/gista/errs"
+
 	"github.com/aliforever/gista/settings/factory"
 
 	"github.com/aliforever/gista/utils"
@@ -14,7 +16,6 @@ import (
 
 	"github.com/aliforever/gista/constants"
 	"github.com/aliforever/gista/devices"
-	"github.com/aliforever/gista/errors"
 	storage_handler "github.com/aliforever/gista/settings/storage-handler"
 	"github.com/aliforever/gista/signatures"
 )
@@ -108,7 +109,7 @@ func (i *Instagram) isExperimentEnabled(experiment, param string, defaultVal boo
 
 func (i *Instagram) setUser(username, password string) (err error) {
 	if username == "" || password == "" {
-		return errors.EmptyUsernameOrPassword
+		return errs.EmptyUsernameOrPassword
 	}
 	err = i.settings.SetActiveUser(username)
 	if err != nil {
@@ -187,7 +188,7 @@ func (i *Instagram) setUser(username, password string) (err error) {
 
 func (i *Instagram) login(user, password string, appRefreshInterval int /*1800*/, forceLogin bool) (err error) {
 	if user == "" || password == "" {
-		return errors.EmptyUsernameOrPassword
+		return errs.EmptyUsernameOrPassword
 	}
 	if i.Username != user || i.Password != password {
 		err = i.setUser(user, password)
@@ -215,11 +216,11 @@ func (i *Instagram) login(user, password string, appRefreshInterval int /*1800*/
 
 func (i *Instagram) Login(user, password string, forceLogin bool) (err error) {
 	if user == "" || password == "" {
-		return errors.EmptyUsernameOrPassword
+		return errs.EmptyUsernameOrPassword
 	}
 	err = i.login(user, password, 1800, false)
 	//constants.ApiUrls
-	return nil
+	return err
 }
 
 func (i *Instagram) SetAddHTTPResponseToResult(status bool) {
@@ -232,11 +233,11 @@ func (i *Instagram) SetAddRawResponseToResult(status bool) {
 
 func (i *Instagram) sendLoginFlow(justLoggedIn bool, appRefreshInterval int /*1800*/) (err error) {
 	if appRefreshInterval < 0 {
-		err = errors.InvalidAppRefreshInterval(appRefreshInterval)
+		err = errs.InvalidAppRefreshInterval(appRefreshInterval)
 		return
 	}
 	if appRefreshInterval > 21600 {
-		err = errors.TooHighAppRefreshInterval(appRefreshInterval)
+		err = errs.TooHighAppRefreshInterval(appRefreshInterval)
 		return
 	}
 	if justLoggedIn {
@@ -277,7 +278,7 @@ func (i *Instagram) sendLoginFlow(justLoggedIn bool, appRefreshInterval int /*18
 		}
 		_, err = i.Timeline.GetTimelineFeed(nil, options)
 		if err != nil {
-			if err == errors.NotLoggedIn {
+			if err == errs.NotLoggedIn {
 				err = i.login(i.Username, i.Password, appRefreshInterval, true)
 				return
 			}
@@ -368,13 +369,12 @@ func (i *Instagram) sendPreLoginFlow() {
 	i.Account.SetContactPointPreFill("prefill")
 }
 
-/*func (i *Instagram) request(address string) *request {
+/*func (i *InstagramInterface) request(address string) *request {
 	return NewRequest(i, address)
 }*/
 func (i *Instagram) updateLoginState(loginResponse *responses.Login) (err error) {
 	if !loginResponse.IsOk() {
-		m, _ := loginResponse.GetMessage()
-		err = errors.InvalidLoginResponse(m)
+		err = errs.InvalidLoginResponse(loginResponse.GetMessage())
 		return
 	}
 	i.isMaybeLoggedIn = true

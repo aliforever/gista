@@ -6,13 +6,13 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/aliforever/gista/errs"
+
 	"github.com/natefinch/atomic"
 
 	storage_handler "github.com/aliforever/gista/settings/storage-handler"
 
 	"strings"
-
-	"github.com/aliforever/gista/errors"
 )
 
 type File struct {
@@ -45,7 +45,7 @@ func (f *File) OpenLocation(config map[string]string) error {
 	}
 	err := f.createFolder(baseFolder)
 	if err != nil {
-		return errors.CreateFolder(err.Error())
+		return errs.CreateFolder(err.Error())
 	}
 	f.baseFolder = baseFolder
 	return nil
@@ -63,19 +63,19 @@ func (f *File) MoveUser(oldUsername, newUsername string) error {
 	oldUser := f.generateUserPaths(oldUsername)
 	newUser := f.generateUserPaths(oldUsername)
 	if !f.fileOrFolderExists(oldUser["userFolder"]) {
-		return errors.PathNotExist(oldUser["userFolder"])
+		return errs.PathNotExist(oldUser["userFolder"])
 	}
 	if f.fileOrFolderExists(newUser["userFolder"]) {
-		return errors.PathAlreadyExists(newUser["userFolder"])
+		return errs.PathAlreadyExists(newUser["userFolder"])
 	}
 	if err := f.createFolder(newUser["userFolder"]); err != nil {
-		return errors.CreateFolder(err.Error())
+		return errs.CreateFolder(err.Error())
 	}
 	if err := f.moveFile(oldUser["settingsFile"], newUser["settingsFile"]); err != nil {
-		return errors.MoveFile(oldUser["settingsFile"], newUser["settingsFile"], err.Error())
+		return errs.MoveFile(oldUser["settingsFile"], newUser["settingsFile"], err.Error())
 	}
 	if err := f.moveFile(oldUser["cookiesFile"], newUser["cookiesFile"]); err != nil {
-		return errors.MoveFile(oldUser["cookiesFile"], newUser["cookiesFile"], err.Error())
+		return errs.MoveFile(oldUser["cookiesFile"], newUser["cookiesFile"], err.Error())
 	}
 	_ = f.removeFolder(oldUser["userFolder"])
 	return nil
@@ -102,7 +102,7 @@ func (f *File) LoadUserSettings() (userSettings map[string]string, err error) {
 	}
 	rawData, err := f.fileGetContents(f.settingsFile)
 	if err != nil {
-		err = errors.ReadFile(f.settingsFile, err.Error())
+		err = errs.ReadFile(f.settingsFile, err.Error())
 		return
 	}
 	dataVersion := 1

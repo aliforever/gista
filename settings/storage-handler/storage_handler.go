@@ -7,11 +7,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aliforever/gista/errs"
+
 	"github.com/natefinch/atomic"
 
 	"github.com/aliforever/gista/utils"
-
-	"github.com/aliforever/gista/errors"
 )
 
 type StorageHandler struct {
@@ -100,7 +100,7 @@ func (sh *StorageHandler) ExperimentKeys() []string {
 
 func (sh *StorageHandler) SetActiveUser(username string) (err error) {
 	if username == "" {
-		return errors.EmptyParameter("username")
+		return errs.EmptyParameter("username")
 	}
 	if username == sh.username {
 		return
@@ -138,29 +138,29 @@ func (sh *StorageHandler) SetActiveUser(username string) (err error) {
 
 func (sh *StorageHandler) Get(key string) (val string, err error) {
 	if sh.username == "" {
-		err = errors.StorageNoUsernameIsSet
+		err = errs.StorageNoUsernameIsSet
 		return
 	}
 	if !sh.hasPersistentKey(key) {
-		err = errors.NotValidPersistentKey(key)
+		err = errs.NotValidPersistentKey(key)
 		return
 	}
 
 	if value, ok := (*sh.userSettings)[key]; ok {
 		return value, nil
 	} else {
-		err = errors.SettingsKeyNotFound(key)
+		err = errs.SettingsKeyNotFound(key)
 		return
 	}
 }
 
 func (sh *StorageHandler) Set(key, val string) (err error) {
 	if sh.username == "" {
-		err = errors.StorageNoUsernameIsSet
+		err = errs.StorageNoUsernameIsSet
 		return
 	}
 	if !sh.hasPersistentKey(key) {
-		err = errors.NotValidPersistentKey(key)
+		err = errs.NotValidPersistentKey(key)
 		return
 	}
 	if _, ok := (*sh.userSettings)[key]; !ok || (*sh.userSettings)[key] != val {
@@ -196,12 +196,12 @@ func (sh *StorageHandler) IsMaybeLoggedIn() (bl bool) {
 
 func (sh *StorageHandler) SetCookies(rawData *string) (err error) {
 	if sh.username == "" {
-		err = errors.StorageNoUsernameIsSet
+		err = errs.StorageNoUsernameIsSet
 		return
 	}
 
 	if rawData == nil {
-		err = errors.ParameterMustBeString("cookie_raw_data")
+		err = errs.ParameterMustBeString("cookie_raw_data")
 		return
 	}
 
@@ -221,14 +221,14 @@ func (sh *StorageHandler) SetCookies(rawData *string) (err error) {
 				written = atomic.WriteFile(*sh.cookiesFilePath, strings.NewReader(*rawData))
 			}
 			if written != nil {
-				err = errors.CookiesFileNotWritable(*sh.cookiesFilePath, written.Error())
+				err = errs.CookiesFileNotWritable(*sh.cookiesFilePath, written.Error())
 				return
 			}
 		} else {
 			if utils.FileOrFolderExists(*sh.cookiesFilePath) {
 				err = os.Remove(*sh.cookiesFilePath)
 				if err != nil {
-					err = errors.CannotDeleteCookiesFile(*sh.cookiesFilePath, err.Error())
+					err = errs.CannotDeleteCookiesFile(*sh.cookiesFilePath, err.Error())
 					return
 				}
 			}
@@ -239,7 +239,7 @@ func (sh *StorageHandler) SetCookies(rawData *string) (err error) {
 
 func (sh *StorageHandler) GetCookies() (cookies *string, err error) {
 	if sh.username == "" {
-		err = errors.StorageNoUsernameIsSet
+		err = errs.StorageNoUsernameIsSet
 		return
 	}
 	cookies = nil
@@ -248,7 +248,7 @@ func (sh *StorageHandler) GetCookies() (cookies *string, err error) {
 		cookies, err = sh.storage.LoadUserCookies()
 	} else { // Cookie file on disk
 		if *sh.cookiesFilePath == "" {
-			err = errors.EmptyCookiesFilePath
+			err = errs.EmptyCookiesFilePath
 			return
 		}
 		sh.createCookiesFileDirectory()
@@ -272,7 +272,7 @@ func (sh *StorageHandler) createCookiesFileDirectory() (err error) {
 	cookieDir := filepath.Dir(*sh.cookiesFilePath)
 	err = utils.CreateFolder(cookieDir)
 	if err != nil {
-		err = errors.CreateFolder(cookieDir)
+		err = errs.CreateFolder(cookieDir)
 	}
 	return
 }

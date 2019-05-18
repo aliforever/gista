@@ -16,9 +16,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aliforever/gista/responses"
+	"github.com/aliforever/gista/errs"
 
-	"github.com/aliforever/gista/errors"
+	"github.com/aliforever/gista/responses"
 
 	"github.com/aliforever/gista/constants"
 	"github.com/aliforever/gista/signatures"
@@ -145,7 +145,7 @@ func (r *request) AddPost(key, val string) *request {
 
 func (r *request) AddFile(key, filePath string, fileName *string, headers map[string]string) (*request, error) {
 	if !utils.FileOrFolderExists(filePath) {
-		return r, errors.PathNotExist(filePath)
+		return r, errs.PathNotExist(filePath)
 	}
 	if fileName == nil {
 		fileName = &filePath
@@ -252,7 +252,7 @@ func (r *request) getMultiPartBody() (body *bytes.Buffer, contentType string, er
 			if fileMap["contents"] != nil {
 				part, partErr := writer.CreateFormFile(k, filepath.Base((fileMap["filepath"]).(string)))
 				if partErr != nil {
-					err = errors.CannotCreateFormFieldFromFile((fileMap["filepath"]).(string), partErr.Error())
+					err = errs.CannotCreateFormFieldFromFile((fileMap["filepath"]).(string), partErr.Error())
 					return
 				}
 				_, err = io.Copy(part, bytes.NewReader((fileMap["filepath"]).([]byte)))
@@ -263,7 +263,7 @@ func (r *request) getMultiPartBody() (body *bytes.Buffer, contentType string, er
 				filePath := (fileMap["filepath"]).(string)
 				file, fErr := os.Open(filePath)
 				if fErr != nil {
-					err = errors.CannotOpenFile(filePath, fErr.Error())
+					err = errs.CannotOpenFile(filePath, fErr.Error())
 					return
 				}
 				r.handles[k] = file
@@ -275,7 +275,7 @@ func (r *request) getMultiPartBody() (body *bytes.Buffer, contentType string, er
 				}*/
 				part, partErr := writer.CreateFormFile(k, fileMap["filename"].(string))
 				if partErr != nil {
-					err = errors.CannotCreateFormFieldFromFile(filePath, partErr.Error())
+					err = errs.CannotCreateFormFieldFromFile(filePath, partErr.Error())
 					return
 				}
 				_, err = io.Copy(part, file)
@@ -283,7 +283,7 @@ func (r *request) getMultiPartBody() (body *bytes.Buffer, contentType string, er
 					return
 				}
 			} else {
-				err = errors.NoDataForStreamCreation
+				err = errs.NoDataForStreamCreation
 				return
 			}
 		}
@@ -333,7 +333,7 @@ func (r *request) buildHttpRequest() (req *http.Request, err error) {
 	postData, contentType, err := r.getRequestBody()
 	r.closeHandles()
 	if err != nil {
-		err = errors.ErrorBuildingHTTPRequest(err.Error())
+		err = errs.ErrorBuildingHTTPRequest(err.Error())
 		return
 	}
 	method := "GET"
@@ -342,7 +342,7 @@ func (r *request) buildHttpRequest() (req *http.Request, err error) {
 	}
 	req, err = http.NewRequest(method, endPoint, postData)
 	if err != nil {
-		err = errors.ErrorBuildingHTTPRequest(err.Error())
+		err = errs.ErrorBuildingHTTPRequest(err.Error())
 	}
 	if len(r.headers) > 0 {
 		for k, v := range r.headers {
@@ -359,7 +359,7 @@ func (r *request) getHTTPResponse() (resp *http.Response, err error) {
 	if r.httpResponse == nil {
 		if r.needsAuth {
 			if !r.parent.instagram.isMaybeLoggedIn {
-				err = errors.NotLoggedIn
+				err = errs.NotLoggedIn
 				return
 			}
 		}
@@ -370,7 +370,7 @@ func (r *request) getHTTPResponse() (resp *http.Response, err error) {
 		)
 		req, err = r.buildHttpRequest()
 		if err != nil {
-			err = errors.ErrorBuildingHTTPRequest(err.Error())
+			err = errs.ErrorBuildingHTTPRequest(err.Error())
 			return
 		}
 		dump, dumpErr := httputil.DumpRequest(req, true)
@@ -382,7 +382,7 @@ func (r *request) getHTTPResponse() (resp *http.Response, err error) {
 		}
 		r.httpResponse, err = r.parent.api(req)
 		if err != nil {
-			err = errors.ErrorGettingHTTPResponse(err.Error())
+			err = errs.ErrorGettingHTTPResponse(err.Error())
 			return
 		}
 		/*respByte, err = ioutil.ReadAll(resp.Body)
@@ -433,7 +433,7 @@ func (r *request) GetResponse(object interface{}) (err error) {
 		return
 	}
 	//{"message": "CSRF token missing or incorrect", "status": "fail"}
-	r.MapServerResponse(object, raw, httpResp)
+	err = r.MapServerResponse(object, raw, httpResp)
 	return
 }
 
@@ -450,11 +450,11 @@ func (r *request) MapServerResponse(object interface{}, rawResponse string, http
 		httpStatusCode := httpResponse.StatusCode
 		switch httpStatusCode {
 		case 400:
-			err = errors.InvalidRequestOptions
+			err = errs.InvalidRequestOptions
 		case 404:
-			err = errors.RequestedResourceNotExist
+			err = errs.RequestedResourceNotExist
 		default:
-			err = errors.NoResponseFromServer
+			err = errs.NoResponseFromServer
 		}
 		return
 	}
@@ -464,6 +464,10 @@ func (r *request) MapServerResponse(object interface{}, rawResponse string, http
 			err = mErr
 			return
 		}
+		t := fmt.Sprintf("%T", object)
+		t = strings.ReplaceAll(t, "*responses.", "")
+		t += "Response"
+		err = errs.GetError(&t, &message, object.(responses.ResponseInterface), httpResponse)
 	}
 	return
 }

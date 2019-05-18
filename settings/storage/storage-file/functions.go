@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/aliforever/gista/errors"
+	"github.com/aliforever/gista/errs"
 )
 
 func (f *File) createFolder(folderPath string) error {
@@ -51,7 +51,7 @@ func (f *File) decodeStorage(dataVersion int, rawData string) (userSettings map[
 	switch dataVersion {
 	case 1:
 		/**
-		 * This is the old format from v1.x of Instagram-API.
+		 * This is the old format from v1.x of InstagramInterface-API.
 		 * Terrible format. Basic "key=value\r\n" and very fragile.
 		 */
 
@@ -76,10 +76,10 @@ func (f *File) decodeStorage(dataVersion int, rawData string) (userSettings map[
 		 */
 		err = json.Unmarshal([]byte(rawData), &userSettings)
 		if err != nil {
-			err = errors.CannotMarshalJSON(rawData, err.Error())
+			err = errs.CannotMarshalJSON(rawData, err.Error())
 		}
 	default:
-		err = errors.InvalidStorageVersion(dataVersion)
+		err = errs.InvalidStorageVersion(dataVersion)
 	}
 	return
 }

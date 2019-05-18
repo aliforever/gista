@@ -1,4 +1,4 @@
-package errors
+package errs
 
 import (
 	"fmt"
@@ -15,10 +15,10 @@ var (
 	InvalidRequestOptions         = errors.New("Invalid request options")
 	RequestedResourceNotExist     = errors.New("Requested resource does not exist")
 	NoResponseFromServer          = errors.New("No response from server. Either a connection or configuration error.")
-	UnknownMessageObject          = errors.New("Unknown message object. Expected errors subarray but found something else. Please submit a ticket about needing an Instagram-API library update!")
-	UnknownMessageType            = errors.New("Unknown message type. Please submit a ticket about needing an Instagram-API library update!")
+	UnknownMessageObject          = errors.New("Unknown message object. Expected errors subarray but found something else. Please submit a ticket about needing an InstagramInterface-API library update!")
+	UnknownMessageType            = errors.New("Unknown message type. Please submit a ticket about needing an InstagramInterface-API library update!")
 	EmptyCookiesFilePath          = errors.New("Empty cookies file path")
-	ThrottledResponse             = errors.New("Throttled by Instagram because of too many API requests.")
+	ThrottledResponse             = errors.New("Throttled by InstagramInterface because of too many API requests.")
 	RequestHeaderTooLargeResponse = errors.New("The request start-line and/or headers are too large to process.")
 )
 
@@ -51,7 +51,7 @@ func InvalidAppRefreshInterval(interval int) error {
 }
 
 func TooHighAppRefreshInterval(interval int) error {
-	return errors.New(fmt.Sprintf("Instagram's app state refresh interval is NOT allowed to be higher than 6 hours, and the lower the better! , given: %d", interval))
+	return errors.New(fmt.Sprintf("InstagramInterface's app state refresh interval is NOT allowed to be higher than 6 hours, and the lower the better! , given: %d", interval))
 }
 
 func InvalidLoginResponse(message string) error {
@@ -99,11 +99,11 @@ func NotSupportedApiVersion(version int) error {
 }
 
 func NotEnoughDeviceStringResolution(deviceString, minimum string) error {
-	return errors.New(fmt.Sprintf("device string %s does not meet the minimum required resolution %s for Instagram", deviceString, minimum))
+	return errors.New(fmt.Sprintf("device string %s does not meet the minimum required resolution %s for InstagramInterface", deviceString, minimum))
 }
 
 func NotEnoughDeviceStringVersion(deviceString, minimum string) error {
-	return errors.New(fmt.Sprintf("device string %s does not meet the minimum required version %s for Instagram", deviceString, minimum))
+	return errors.New(fmt.Sprintf("device string %s does not meet the minimum required version %s for InstagramInterface", deviceString, minimum))
 }
 
 func InvalidDeviceFormat(deviceString string) error {

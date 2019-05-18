@@ -1,11 +1,10 @@
 package responses
 
 import (
+	"fmt"
 	"go/types"
 	"net/http"
 	"strings"
-
-	"github.com/aliforever/gista/errors"
 )
 
 type Response struct {
@@ -15,6 +14,7 @@ type Response struct {
 	isOk         bool
 	Message      interface{} `json:"message,omitempty"`
 	ErrorType    *string     `json:"error_type,omitempty"`
+	ErrorTitle   interface{} `json:"error_title,omitempty"`
 }
 
 func (r *Response) GetHTTPResponse() *http.Response {
@@ -49,7 +49,7 @@ func (r *Response) GetErrorType() (str *string) {
 	return r.ErrorType
 }
 
-func (r *Response) GetMessage() (str string, err error) {
+func (r *Response) GetMessage() (str string) {
 	switch r.Message.(type) {
 	case string, types.Nil:
 		str = r.Message.(string)
@@ -64,12 +64,10 @@ func (r *Response) GetMessage() (str string, err error) {
 			}
 			str = strings.Join(mp["errors"], " AND ")
 			return
-		} else {
-			err = errors.UnknownMessageObject
-			return
 		}
 	default:
-		err = errors.UnknownMessageType
+		str = fmt.Sprintf("%+v", r.Message)
 		return
 	}
+	return
 }

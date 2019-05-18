@@ -3,8 +3,9 @@ package gista
 import (
 	"encoding/json"
 
+	"github.com/aliforever/gista/errs"
+
 	"github.com/aliforever/gista/constants"
-	"github.com/aliforever/gista/errors"
 	"github.com/aliforever/gista/responses"
 )
 
@@ -32,6 +33,7 @@ func (a *account) Login(username, password string) (r *responses.Login, err erro
 		AddPost("google_tokens", "[]").
 		AddPost("login_attempt_count", "0").
 		GetResponse(r)
+
 	return
 }
 
@@ -138,7 +140,7 @@ func (a *account) SwitchToPersonalProfile() (r *responses.SwitchPersonalProfile,
 
 func (a *account) SetBiography(biography string) (r *responses.UserInfo, err error) {
 	if len(biography) > 150 {
-		err = errors.InvalidBiography(biography)
+		err = errs.InvalidBiography(biography)
 		return
 	}
 	r = &responses.UserInfo{}

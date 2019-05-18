@@ -4,10 +4,11 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/aliforever/gista/errs"
+
 	"github.com/mcuadros/go-version"
 
 	good_devices "github.com/aliforever/gista/devices/good-devices"
-	"github.com/aliforever/gista/errors"
 )
 
 const requiredAndroidVersion = "2.2"
@@ -40,22 +41,22 @@ func (d *Device) GetDeviceString() string {
 
 func (d *Device) initFromDeviceString(deviceString *string) error {
 	if deviceString == nil || *deviceString == "" {
-		return errors.EmptyDeviceString
+		return errs.EmptyDeviceString
 	}
 	parts := strings.Split(*deviceString, ";")
 	if len(parts) != 7 {
-		return errors.InvalidDeviceFormat(*deviceString)
+		return errs.InvalidDeviceFormat(*deviceString)
 	}
 	androidOS := strings.Split(parts[0], "/")
 	if version.Compare(androidOS[1], requiredAndroidVersion, "<") {
-		return errors.NotEnoughDeviceStringVersion(*deviceString, requiredAndroidVersion)
+		return errs.NotEnoughDeviceStringVersion(*deviceString, requiredAndroidVersion)
 	}
 	resolution := strings.SplitN(parts[2], "x", 2)
 	x, _ := strconv.Atoi(strings.TrimSpace(resolution[0]))
 	y, _ := strconv.Atoi(strings.TrimSpace(resolution[1]))
 	pixelCount := x * y
 	if pixelCount < 2073600 {
-		return errors.NotEnoughDeviceStringResolution(*deviceString, "1920x1080")
+		return errs.NotEnoughDeviceStringResolution(*deviceString, "1920x1080")
 	}
 	manufacturerAndBrand := strings.SplitN(parts[3], "/", 2)
 	d.deviceString = *deviceString

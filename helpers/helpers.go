@@ -7,13 +7,13 @@ import (
 	"path"
 	"sort"
 
+	errs2 "github.com/aliforever/gista/errs"
+
 	"github.com/aliforever/gista/utils"
 
 	"github.com/aliforever/gista/constants"
 
 	"github.com/aliforever/gista/models/item"
-
-	"github.com/aliforever/gista/errors"
 
 	"github.com/aliforever/gista/models"
 )
@@ -21,7 +21,7 @@ import (
 func DownloadItem(i *models.Item, path *string) (errs map[string]error) {
 	if i == nil {
 		errs = map[string]error{}
-		errs["default"] = errors.InvalidItem(i)
+		errs["default"] = errs2.InvalidItem(i)
 		return
 	}
 	info, err := GetItemBestQualityUrl(i)
@@ -58,7 +58,7 @@ func DownloadItem(i *models.Item, path *string) (errs map[string]error) {
 func Download(address, filePath string) (err error) {
 	err = utils.CreateFolder(path.Dir(filePath))
 	if err != nil {
-		err = errors.CreateFolder(err.Error())
+		err = errs2.CreateFolder(err.Error())
 		return
 	}
 	out, err := os.Create(filePath)
@@ -72,7 +72,7 @@ func Download(address, filePath string) (err error) {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		err = errors.InvalidHTTPStatus(resp.StatusCode)
+		err = errs2.InvalidHTTPStatus(resp.StatusCode)
 		return
 	}
 	_, err = io.Copy(out, resp.Body)
@@ -84,7 +84,7 @@ func Download(address, filePath string) (err error) {
 
 func GetItemBestQualityUrl(i *models.Item) (info map[string]map[string]string, err error) {
 	if i == nil {
-		err = errors.InvalidItem(i)
+		err = errs2.InvalidItem(i)
 		return
 	}
 
@@ -147,7 +147,7 @@ func GetMediaBestQualityUrl(i interface{}) (url string, err error) {
 		break
 		//sort.Ints(widths)
 	default:
-		err = errors.UnknownItem(i)
+		err = errs2.UnknownItem(i)
 	}
 	return
 }
