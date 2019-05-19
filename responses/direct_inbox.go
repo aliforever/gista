@@ -5,7 +5,7 @@ import "github.com/aliforever/gista/models"
 type DirectInbox struct {
 	Response
 	PendingRequestsTotal interface{}        `json:"pending_requests_total"`
-	SeqId                string             `json:"seq_id"`
+	SeqId                int64              `json:"seq_id"`
 	Viewer               models.User        `json:"viewer"`
 	PendingRequestsUsers []models.User      `json:"pending_requests_users"`
 	Inbox                models.DirectInbox `json:"inbox"`

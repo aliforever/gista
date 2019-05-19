@@ -6,7 +6,7 @@ type StoryTray struct {
 	User               User        `json:"user"`
 	CanReply           interface{} `json:"can_reply"`
 	ExpiringAt         int64       `json:"expiring_at"`
-	SeenRankedPosition string      `json:"seen_ranked_position"`
+	SeenRankedPosition int         `json:"seen_ranked_position"`
 	/*
 	 * The "taken_at" timestamp of the last story media you have seen for
 	 * that user (the current trays user). Defaults to `0` (not seen).
@@ -15,7 +15,7 @@ type StoryTray struct {
 	/*
 	 * Unix "taken_at" timestamp of the newest item in their story reel.
 	 */
-	LatestReelMedia     string      `json:"latest_reel_media"`
+	LatestReelMedia     int64       `json:"latest_reel_media"`
 	RankedPosition      int         `json:"ranked_position"`
 	IsNux               interface{} `json:"is_nux"`
 	ShowNuxTooltip      interface{} `json:"show_nux_tooltip"`

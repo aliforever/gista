@@ -6,7 +6,7 @@ type Args struct {
 	IconUrl                 string       `json:"icon_url"`
 	Links                   []Link       `json:"links"`
 	RichText                string       `json:"rich_text"`
-	ProfileId               string       `json:"profile_id"`
+	ProfileId               int64        `json:"profile_id"`
 	ProfileImage            string       `json:"profile_image"`
 	Media                   []Media      `json:"media"`
 	CommentNotifType        string       `json:"comment_notif_type"`
@@ -17,7 +17,7 @@ type Args struct {
 	ActionUrl               string       `json:"action_url"`
 	Destination             string       `json:"destination"`
 	Actions                 []string     `json:"actions"`
-	LatestReelMedia         string       `json:"latest_reel_media"`
+	LatestReelMedia         int64        `json:"latest_reel_media"`
 	CommentId               string       `json:"comment_id"`
 	RequestCount            interface{}  `json:"request_count"`
 	InlineFollow            InlineFollow `json:"inline_follow"`

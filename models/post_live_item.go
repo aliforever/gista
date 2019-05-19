@@ -8,7 +8,7 @@ type PostLiveItem struct {
 	LastSeenBroadcastTs interface{} `json:"last_seen_broadcast_ts"`
 	CanReply            interface{} `json:"can_reply"`
 	RankedPosition      interface{} `json:"ranked_position"`
-	SeenRankedPosition  interface{} `json:"seen_ranked_position"`
+	SeenRankedPosition  int         `json:"seen_ranked_position"`
 	Muted               interface{} `json:"muted"`
 	CanReshare          interface{} `json:"can_reshare"`
 }

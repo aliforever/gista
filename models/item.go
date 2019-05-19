@@ -77,7 +77,7 @@ type Item struct {
 	CommentsDisabled                    interface{}                   `json:"comments_disabled,omitempty"`
 	ReelMentions                        []ReelMention                 `json:"reel_mentions,omitempty"`
 	StoryCta                            []StoryCta                    `json:"story_cta,omitempty"`
-	NextMaxId                           string                        `json:"next_max_id,omitempty"`
+	NextMaxId                           interface{}                   `json:"next_max_id,omitempty"`
 	CarouselMedia                       []CarouselMedia               `json:"carousel_media,omitempty"`
 	CarouselMediaType                   interface{}                   `json:"carousel_media_type,omitempty"`
 	CarouselMediaCount                  int                           `json:"carousel_media_count,omitempty"`
@@ -173,7 +173,7 @@ type Item struct {
 	StoryMusicStickers                  interface{}                   `json:"story_music_stickers,omitempty"`
 	SupportsReelReactions               bool                          `json:"supports_reel_reactions,omitempty"`
 	ShowOneTapFbShareTooltip            bool                          `json:"show_one_tap_fb_share_tooltip,omitempty"`
-	HasSharedToFb                       bool                          `json:"has_shared_to_fb,omitempty"`
+	HasSharedToFb                       int                           `json:"has_shared_to_fb,omitempty"`
 	MainFeedCarouselStartingMediaId     string                        `json:"main_feed_carousel_starting_media_id,omitempty"`
 	MainFeedCarouselHasUnseenCoverMedia bool                          `json:"main_feed_carousel_has_unseen_cover_media,omitempty"`
 	InventorySource                     string                        `json:"inventory_source,omitempty"`

@@ -1,6 +1,6 @@
 package models
 
 type QpData struct {
-	Surface int          `json:"surface"`
+	Surface string       `json:"surface"`
 	Data    QpViewerData `json:"data"`
 }

@@ -91,7 +91,7 @@ type User struct {
 	Email                          string      `json:"email,omitempty"`
 	CountryCode                    int         `json:"country_code,omitempty"`
 	Birthday                       interface{} `json:"birthday,omitempty"`
-	NationalNumber                 string      `json:"national_number,omitempty"` // Really int but may be >32bit.
+	NationalNumber                 float64     `json:"national_number,omitempty"` // Really int but may be >32bit.
 	Gender                         int         `json:"gender,omitempty"`
 	PhoneNumber                    string      `json:"phone_number,omitempty"`
 	NeedsEmailConfirm              interface{} `json:"needs_email_confirm,omitempty"`
@@ -111,7 +111,7 @@ type User struct {
 	/*
 	 * Unix "taken_at" timestamp of the newest item in their story reel.
 	 */
-	LatestReelMedia        string      `json:"latest_reel_media,omitempty"`
+	LatestReelMedia        int64       `json:"latest_reel_media,omitempty"`
 	HasUnseenBestiesMedia  bool        `json:"has_unseen_besties_media,omitempty"`
 	AllowedCommenterType   string      `json:"allowed_commenter_type,omitempty"`
 	ReelAutoArchive        string      `json:"reel_auto_archive,omitempty"`

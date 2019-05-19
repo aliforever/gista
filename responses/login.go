@@ -18,12 +18,13 @@ type Login struct {
 	PhoneNumber                string           `json:"phone_number"`
 	CountryCode                int              `json:"country_code"`
 	NationalNumber             int              `json:"national_number"`*/
-	Buttons            interface{}      `json:"buttons,omitempty"`
-	InvalidCredentials interface{}      `json:"invalid_credentials,omitempty"`
-	LoggedInUser       models.User      `json:"logged_in_user,omitempty"`
-	TwoFactorRequired  interface{}      `json:"two_factor_required,omitempty"`
-	CheckPointUrl      string           `json:"check_point_url,omitempty"`
-	Lock               interface{}      `json:"lock,omitempty"`
-	HelpUrl            string           `json:"help_url,omitempty"`
-	Challenge          models.Challenge `json:"challenge,omitempty"`
+	Buttons            interface{}           `json:"buttons,omitempty"`
+	InvalidCredentials interface{}           `json:"invalid_credentials,omitempty"`
+	LoggedInUser       models.User           `json:"logged_in_user,omitempty"`
+	TwoFactorRequired  bool                  `json:"two_factor_required,omitempty"`
+	TwoFactorInfo      *models.TwoFactorInfo `json:"two_factor_info,omitempty"`
+	CheckPointUrl      string                `json:"check_point_url,omitempty"`
+	Lock               interface{}           `json:"lock,omitempty"`
+	HelpUrl            string                `json:"help_url,omitempty"`
+	Challenge          *models.Challenge     `json:"challenge,omitempty"`
 }

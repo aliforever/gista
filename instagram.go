@@ -186,6 +186,11 @@ func (i *Instagram) setUser(username, password string) (err error) {
 	return nil
 }
 
+func (i *Instagram) FinishTwoFactorLogin(username, password, twoFactorIdentifier, verificationCode string) (err error) {
+	_, err = i.Account.finishTwoFactorLogin(username, password, twoFactorIdentifier, verificationCode, "1", 1800, nil)
+	return
+}
+
 func (i *Instagram) login(user, password string, appRefreshInterval int /*1800*/, forceLogin bool) (err error) {
 	if user == "" || password == "" {
 		return errs.EmptyUsernameOrPassword
@@ -200,7 +205,7 @@ func (i *Instagram) login(user, password string, appRefreshInterval int /*1800*/
 		i.sendPreLoginFlow()
 		var loginResponse *responses.Login
 		//i.SetAddHTTPResponseToResult(true)
-		loginResponse, err = i.Account.Login(user, password)
+		loginResponse, err = i.Account.login(user, password)
 		if err != nil {
 			return
 		}
@@ -360,7 +365,7 @@ func (i *Instagram) registerPushChannels() (err error) {
 }
 
 func (i *Instagram) sendPreLoginFlow() {
-	i.SetAddRawResponseToResult(true)
+	//i.SetAddRawResponseToResult(true)
 	i.Internal.ReadMsisdnHeader("ig_select_app", nil)
 	i.Internal.SyncDeviceFeatures(true)
 	i.Internal.SendLauncherSync(true)

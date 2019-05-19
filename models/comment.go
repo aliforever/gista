@@ -7,7 +7,7 @@ type Comment struct {
 	 * Unix timestamp (UTC) of when the comment was posted.
 	 * Yes this is the UTC timestamp even though its not named "utc"!
 	 */
-	CreatedAt string `json:"created_at"`
+	CreatedAt int64 `json:"created_at"`
 	/*
 	 * WARNING: DO NOT USE THIS VALUE! It is NOT a real UTC timestamp.
 	 * Instagram has messed up their values of "created_at" vs "created_at_utc".
@@ -17,11 +17,11 @@ type Comment struct {
 	 * the future beyond the real UTC time). So just ignore this bad value!
 	 * The real app only reads "created_at" for showing comment timestamps!
 	 */
-	CreatedAtUtc string `json:"created_at_utc"`
+	CreatedAtUtc int64  `json:"created_at_utc"`
 	BitFlags     int    `json:"bit_flags"`
 	User         User   `json:"user"`
 	Pk           int64  `json:"pk"`
-	MediaId      string `json:"media_id"`
+	MediaId      int    `json:"media_id"`
 	Text         string `json:"text"`
 	ContentType  string `json:"content_type"`
 	/*

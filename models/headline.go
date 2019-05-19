@@ -8,7 +8,7 @@ type Headline struct {
 	Text         string      `json:"text"`
 	Type         int         `json:"type"`
 	CreatedAt    string      `json:"created_at"`
-	CreatedAtUtc string      `json:"created_at_utc"`
+	CreatedAtUtc int64       `json:"created_at_utc"`
 	MediaId      string      `json:"media_id"`
 	BitFlags     int         `json:"bit_flags"`
 	Status       interface{} `json:"status"`

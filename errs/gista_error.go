@@ -1,11 +1,13 @@
 package errs
 
-import "net/http"
+import (
+	"github.com/aliforever/gista/responses"
+)
 
 type GistaError struct {
 	Type         *string
 	Message      *string
-	HTTPResponse *http.Response
+	HTTPResponse responses.ResponseInterface
 }
 
 func (g GistaError) Error() string {

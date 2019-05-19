@@ -11,7 +11,7 @@ type Token struct {
 	CarrierId                   int           `json:"carrier_id"`
 	Ttl                         int64         `json:"ttl"`
 	Features                    interface{}   `json:"features"`
-	RequestTime                 string        `json:"request_time"`
+	RequestTime                 int           `json:"request_time"`
 	TokenHash                   string        `json:"token_hash"`
 	RewriteRules                []RewriteRule `json:"rewrite_rules"`
 	EnabledWalletDefsKeys       interface{}   `json:"enabled_wallet_defs_keys"`

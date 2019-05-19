@@ -10,7 +10,7 @@ type Location struct {
 	ExternalId         string                 `json:"external_id"`
 	FacebookPlacesId   string                 `json:"facebook_places_id"`
 	City               string                 `json:"city"`
-	Pk                 string                 `json:"pk"`
+	Pk                 int64                  `json:"pk"`
 	ShortName          string                 `json:"short_name"`
 	FacebookEventsId   string                 `json:"facebook_events_id"`
 	StartTime          interface{}            `json:"start_time"`

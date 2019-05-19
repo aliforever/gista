@@ -21,63 +21,81 @@ var exceptionMap = map[string][]string{
 	"SentryBlock":         {"sentry_block"},
 	"InvalidUser":         {"/username(.*?)doesn't(.*?)belong/", "invalid_user"},
 	"ForcedPasswordReset": {"/reset(.*?)password/"},
+	"RateLimit":           {"rate_limit_error"},
+	"InvalidParameters":   {"invalid_parameters"},
 }
 
-var errorMap = map[string]func(t, m *string, resp *http.Response) error{
-	"LoginRequired": func(t, m *string, resp *http.Response) error {
+var errorMap = map[string]func(t, m *string, resp responses.ResponseInterface) error{
+	"LoginRequired": func(t, m *string, resp responses.ResponseInterface) error {
 		err := LoginRequired{Type: t, Message: m, HTTPResponse: resp}
 		return err
 	},
-	"CheckpointRequired": func(t, m *string, resp *http.Response) error {
+	"CheckpointRequired": func(t, m *string, resp responses.ResponseInterface) error {
 		err := CheckpointRequired{Type: t, Message: m, HTTPResponse: resp}
 		return err
 	},
-	"ChallengeRequired": func(t, m *string, resp *http.Response) error {
+	"ChallengeRequired": func(t, m *string, resp responses.ResponseInterface) error {
 		err := ChallengeRequired{Type: t, Message: m, HTTPResponse: resp}
 		return err
 	},
-	"FeedbackRequired": func(t, m *string, resp *http.Response) error {
+	"FeedbackRequired": func(t, m *string, resp responses.ResponseInterface) error {
 		err := FeedbackRequired{Type: t, Message: m, HTTPResponse: resp}
 		return err
 	},
-	"ConsentRequired": func(t, m *string, resp *http.Response) error {
+	"ConsentRequired": func(t, m *string, resp responses.ResponseInterface) error {
 		err := ConsentRequired{Type: t, Message: m, HTTPResponse: resp}
 		return err
 	},
-	"IncorrectPassword": func(t, m *string, resp *http.Response) error {
+	"IncorrectPassword": func(t, m *string, resp responses.ResponseInterface) error {
 		err := IncorrectPassword{Type: t, Message: m, HTTPResponse: resp}
 		return err
 	},
-	"InvalidSmsCode": func(t, m *string, resp *http.Response) error {
+	"InvalidSmsCode": func(t, m *string, resp responses.ResponseInterface) error {
 		err := InvalidSmsCode{Type: t, Message: m, HTTPResponse: resp}
 		return err
 	},
-	"AccountDisabled": func(t, m *string, resp *http.Response) error {
+	"AccountDisabled": func(t, m *string, resp responses.ResponseInterface) error {
 		err := AccountDisabled{Type: t, Message: m, HTTPResponse: resp}
 		return err
 	},
-	"SentryBlock": func(t, m *string, resp *http.Response) error {
+	"SentryBlock": func(t, m *string, resp responses.ResponseInterface) error {
 		err := SentryBlock{Type: t, Message: m, HTTPResponse: resp}
 		return err
 	},
-	"InvalidUser": func(t, m *string, resp *http.Response) error {
+	"InvalidUser": func(t, m *string, resp responses.ResponseInterface) error {
 		err := InvalidUser{Type: t, Message: m, HTTPResponse: resp}
 		return err
 	},
-	"ForcedPasswordReset": func(t, m *string, resp *http.Response) error {
+	"ForcedPasswordReset": func(t, m *string, resp responses.ResponseInterface) error {
 		err := ForcedPasswordReset{Type: t, Message: m, HTTPResponse: resp}
+		return err
+	},
+	"TwoFactorRequired": func(t, m *string, resp responses.ResponseInterface) error {
+		err := TwoFactorRequired{Type: t, Message: m, HTTPResponse: resp}
+		return err
+	},
+	"RateLimit": func(t, m *string, resp responses.ResponseInterface) error {
+		err := RateLimit{Type: t, Message: m, HTTPResponse: resp}
+		return err
+	},
+	"InvalidParameters": func(t, m *string, resp responses.ResponseInterface) error {
+		err := InvalidParameters{Type: t, Message: m, HTTPResponse: resp}
+		return err
+	},
+	"BadRequest": func(t, m *string, resp responses.ResponseInterface) error {
+		err := BadRequest{Type: t, Message: m, HTTPResponse: resp}
 		return err
 	},
 }
 
-func GetError(prefix *string, serverMessage *string, response responses.ResponseInterface, httpResponse *http.Response) (err error) {
+func GetError(prefix *string, serverMessage *string, response interface{}, httpResponse *http.Response) (err error) {
 	var messages []string
 	if serverMessage != nil {
 		messages = append(messages, *serverMessage)
 	}
 	var serverErrorType *string = nil
 	if response != nil {
-		if t := (response).GetErrorType(); t != nil {
+		if t := (response).(responses.ResponseInterface).GetErrorType(); t != nil {
 			serverErrorType = t
 			messages = append(messages, *t)
 		}
@@ -108,8 +126,25 @@ Loop:
 		if httpResponse != nil {
 			httpStatusCode = httpResponse.StatusCode
 		}
+	LoopStatus:
 		switch httpStatusCode {
 		case 400:
+			if response != nil {
+				switch response.(type) {
+				case *responses.Login:
+					if response.(*responses.Login).TwoFactorRequired {
+						s := "TwoFactorRequired"
+						exceptionClass = &s
+						break LoopStatus
+					}
+				}
+			}
+			rtErr := "rate_limit_error"
+			if serverErrorType == &rtErr {
+				s := "RateLimit"
+				exceptionClass = &s
+				break LoopStatus
+			}
 			s := "BadRequest"
 			exceptionClass = &s
 		case 404:
@@ -134,7 +169,9 @@ Loop:
 			displayMessage = &m
 		}
 	}
-	e := errorMap[*exceptionClass](serverErrorType, displayMessage, httpResponse)
+
+	//pretty.Println(response, serverErrorType, displayMessage, exceptionClass)
+	e := errorMap[*exceptionClass](serverErrorType, displayMessage, response.(responses.ResponseInterface))
 	err = e
 	return
 }

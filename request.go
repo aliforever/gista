@@ -459,11 +459,7 @@ func (r *request) MapServerResponse(object interface{}, rawResponse string, http
 		return
 	}
 	if !object.(responses.ResponseInterface).IsOk() {
-		message, mErr := object.(responses.ResponseInterface).GetMessage()
-		if mErr != nil {
-			err = mErr
-			return
-		}
+		message := object.(responses.ResponseInterface).GetMessage()
 		t := fmt.Sprintf("%T", object)
 		t = strings.ReplaceAll(t, "*responses.", "")
 		t += "Response"

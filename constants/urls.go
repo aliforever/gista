@@ -14,6 +14,7 @@ const FacebookOTA string = "facebook_ota/"
 // Account
 const ContactPointPreFill string = "accounts/contact_point_prefill/"
 const Login string = "accounts/login/"
+const TwoFactorLogin string = "accounts/two_factor_login/"
 const CurrentUser string = "accounts/current_user/"
 const SetBiography string = "accounts/set_biography/"
 const EditProfile string = "accounts/set_biography/"

@@ -1,7 +1,7 @@
 package models
 
 type Hashtag struct {
-	Id               string      `json:"id"`
+	Id               int64       `json:"id"`
 	Name             string      `json:"name"`
 	MediaCount       int         `json:"media_count"`
 	ProfilePicUrl    string      `json:"profile_pic_url"`

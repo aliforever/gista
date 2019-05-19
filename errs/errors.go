@@ -7,20 +7,26 @@ import (
 )
 
 var (
-	EmptyUsernameOrPassword       = errors.New("Please provide a username and password to login")
-	StorageNoUsernameIsSet        = errors.New("No Username is set in storage handler")
-	EmptyDeviceString             = errors.New("device string is empty")
-	NotLoggedIn                   = errors.New("User not logged in")
-	NoDataForStreamCreation       = errors.New("No data is provided for stream creation")
-	InvalidRequestOptions         = errors.New("Invalid request options")
-	RequestedResourceNotExist     = errors.New("Requested resource does not exist")
-	NoResponseFromServer          = errors.New("No response from server. Either a connection or configuration error.")
-	UnknownMessageObject          = errors.New("Unknown message object. Expected errors subarray but found something else. Please submit a ticket about needing an InstagramInterface-API library update!")
-	UnknownMessageType            = errors.New("Unknown message type. Please submit a ticket about needing an InstagramInterface-API library update!")
-	EmptyCookiesFilePath          = errors.New("Empty cookies file path")
-	ThrottledResponse             = errors.New("Throttled by InstagramInterface because of too many API requests.")
-	RequestHeaderTooLargeResponse = errors.New("The request start-line and/or headers are too large to process.")
+	EmptyUsernameOrPassword                 = errors.New("Please provide a username and password to login")
+	StorageNoUsernameIsSet                  = errors.New("No Username is set in storage handler")
+	EmptyDeviceString                       = errors.New("device string is empty")
+	NotLoggedIn                             = errors.New("User not logged in")
+	NoDataForStreamCreation                 = errors.New("No data is provided for stream creation")
+	InvalidRequestOptions                   = errors.New("Invalid request options")
+	RequestedResourceNotExist               = errors.New("Requested resource does not exist")
+	NoResponseFromServer                    = errors.New("No response from server. Either a connection or configuration error.")
+	UnknownMessageObject                    = errors.New("Unknown message object. Expected errors subarray but found something else. Please submit a ticket about needing an InstagramInterface-API library update!")
+	UnknownMessageType                      = errors.New("Unknown message type. Please submit a ticket about needing an InstagramInterface-API library update!")
+	EmptyCookiesFilePath                    = errors.New("Empty cookies file path")
+	ThrottledResponse                       = errors.New("Throttled by InstagramInterface because of too many API requests.")
+	RequestHeaderTooLargeResponse           = errors.New("The request start-line and/or headers are too large to process.")
+	UsernameAndPasswordRequiredForTwoFactor = errors.New("You must provide a username and password to finishTwoFactorLogin()")
+	VerificationCodeRequiredForTwoFactor    = errors.New("You must provide a verification code and two-factor identifier to finishTwoFactorLogin().")
 )
+
+func InvalidMethodForTwoFactor(method string) error {
+	return errors.New(fmt.Sprintf("You must provide a valid verification method value. given: %s", method))
+}
 
 func InvalidBiography(bio string) error {
 	return errors.New(fmt.Sprintf("Invalid biography %s, Please provide a 0 to 150 character string as biography.", bio))
