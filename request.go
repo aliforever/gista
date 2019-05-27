@@ -105,6 +105,11 @@ func (r *request) AddPhoneIdPost() *request {
 	return r
 }
 
+func (r *request) AddPhoneIdParam() *request {
+	r.params["phone_id"] = r.parent.instagram.phoneId
+	return r
+}
+
 func (r *request) AddAdIdPost() *request {
 	r.posts["adid"] = r.parent.instagram.advertisingId
 	return r

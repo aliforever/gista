@@ -11,6 +11,6 @@ type CoverMedia struct {
 	OriginalWidth       int            `json:"original_width"`
 	OriginalHeight      int            `json:"original_height"`
 	CroppedImageVersion ImageCandidate `json:"cropped_image_version"`
-	CropRect            []int          `json:"crop_rect"`
+	CropRect            []float64      `json:"crop_rect"`
 	FullImageVersion    ImageCandidate `json:"full_image_version"`
 }

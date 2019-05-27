@@ -18,7 +18,7 @@ type Broadcast struct {
 	RankedPosition       interface{} `json:"ranked_position"`
 	OrganicTrackingToken string      `json:"organic_tracking_token"`
 	SeenRankedPosition   int         `json:"seen_ranked_position"`
-	ViewerCount          int         `json:"viewer_count"`
+	ViewerCount          float64     `json:"viewer_count"`
 	DashManifest         string      `json:"dash_manifest"`
 	/*
 	 * Unix timestamp of when the "post_live" will expire.

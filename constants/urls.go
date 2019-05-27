@@ -61,6 +61,7 @@ const RemoveMediaFromCollections string = "media/{$mediaId}/save/"
 
 // Timeline
 const TimelineFeed string = "feed/timeline/"
+const GetUserTimelineFeed string = "feed/user/%d/"
 
 // Story
 const ReelsTrayFeed string = "feed/reels_tray/"
@@ -88,3 +89,6 @@ const GetInfoByUsername string = "users/%s/usernameinfo/"
 
 // Media
 const BlockedMedia string = "media/blocked/"
+
+// Highlight
+const GetHighlightsUserFeed string = "highlights/%d/highlights_tray/"

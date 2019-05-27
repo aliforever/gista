@@ -18,6 +18,18 @@ func newTimeline(i *Instagram) *timeline {
 	return &timeline{ig: i}
 }
 
+func (t *timeline) GetUserFeed(userId int64, maxId *string) (res *responses.UserTimelineFeed, err error) {
+	res = &responses.UserTimelineFeed{}
+	req := t.ig.client.Request(fmt.Sprintf(constants.GetUserTimelineFeed, userId)).
+		AddParam("exclude_comment", "true").
+		AddParam("only_fetch_first_carousel_media", "false")
+	if maxId != nil {
+		req.AddParam("max_id", *maxId)
+	}
+	err = req.GetResponse(res)
+	return
+}
+
 func (t *timeline) GetTimelineFeed(maxId *string, options map[string]interface{}) (res *responses.TimelineFeed, err error) {
 	res = &responses.TimelineFeed{}
 	_, offset := time.Now().Zone()

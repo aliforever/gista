@@ -1,20 +1,20 @@
 package models
 
 type CarouselMedia struct {
-	Pk                int            `json:"pk"`
-	Id                string         `json:"id"`
-	CarouselParentId  string         `json:"carousel_parent_id"`
-	FbUserTags        Usertag        `json:"fb_user_tags"`
-	NumberOfQualities int            `json:"number_of_qualities"`
-	IsDashEligible    int            `json:"is_dash_eligible"`
-	VideoDashManifest string         `json:"video_dash_manifest"`
-	ImageVersions2    ImageVersions2 `json:"image_versions2"`
-	VideoVersions     []VideoVersion `json:"video_versions"`
-	HasAudio          bool           `json:"has_audio"`
-	VideoDuration     float64        `json:"video_duration"`
-	VideoSubtitlesUri string         `json:"video_subtitles_uri"`
-	OriginalHeight    int            `json:"original_height"`
-	OriginalWidth     int            `json:"original_width"`
+	Pk                int64           `json:"pk"`
+	Id                string          `json:"id"`
+	CarouselParentId  string          `json:"carousel_parent_id"`
+	FbUserTags        Usertag         `json:"fb_user_tags"`
+	NumberOfQualities int             `json:"number_of_qualities"`
+	IsDashEligible    int             `json:"is_dash_eligible"`
+	VideoDashManifest string          `json:"video_dash_manifest"`
+	ImageVersions2    *ImageVersions2 `json:"image_versions2,omitempty"`
+	VideoVersions     *[]VideoVersion `json:"video_versions,omitempty"`
+	HasAudio          bool            `json:"has_audio"`
+	VideoDuration     float64         `json:"video_duration"`
+	VideoSubtitlesUri string          `json:"video_subtitles_uri"`
+	OriginalHeight    int             `json:"original_height"`
+	OriginalWidth     int             `json:"original_width"`
 	/*
 	 * A number describing what type of media this is. Should be compared
 	 * against the `CarouselMedia::PHOTO` and `CarouselMedia::VIDEO`

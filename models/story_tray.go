@@ -1,7 +1,7 @@
 package models
 
 type StoryTray struct {
-	Id                 int64       `json:"id"`
+	Id                 string      `json:"id"`
 	Items              []Item      `json:"items"`
 	User               User        `json:"user"`
 	CanReply           interface{} `json:"can_reply"`
