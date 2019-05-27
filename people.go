@@ -2,6 +2,7 @@ package gista
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/aliforever/gista/constants"
 	"github.com/aliforever/gista/responses"
@@ -13,6 +14,56 @@ type people struct {
 
 func newPeople(i *Instagram) *people {
 	return &people{ig: i}
+}
+
+func (p *people) GetInfoById(userId int64, module *string) (res *responses.UserInfo, err error) {
+	/*modules:
+		 *							  "comment_likers",
+	     *                            "comment_owner",
+	     *                            "followers",
+	     *                            "following",
+	     *                            "likers_likers_media_view_profile",
+	     *                            "likers_likers_photo_view_profile",
+	     *                            "likers_likers_video_view_profile",
+	     *                            "newsfeed",
+	     *                            "self_followers",
+	     *                            "self_following",
+	     *                            "self_likers_self_likers_media_view_profile",
+	     *                            "self_likers_self_likers_photo_view_profile",
+	     *                            "self_likers_self_likers_video_view_profile".
+	*/
+	res = &responses.UserInfo{}
+	req := p.ig.client.Request(fmt.Sprintf(constants.GetInfoById, userId))
+	if module != nil {
+		req.AddParam("from_module", *module)
+	}
+	err = req.GetResponse(res)
+	return
+}
+
+func (p *people) GetInfoByName(username string, module *string) (res *responses.UserInfo, err error) {
+	/*modules:
+		 *							  "comment_likers",
+	     *                            "comment_owner",
+	     *                            "followers",
+	     *                            "following",
+	     *                            "likers_likers_media_view_profile",
+	     *                            "likers_likers_photo_view_profile",
+	     *                            "likers_likers_video_view_profile",
+	     *                            "newsfeed",
+	     *                            "self_followers",
+	     *                            "self_following",
+	     *                            "self_likers_self_likers_media_view_profile",
+	     *                            "self_likers_self_likers_photo_view_profile",
+	     *                            "self_likers_self_likers_video_view_profile".
+	*/
+	res = &responses.UserInfo{}
+	req := p.ig.client.Request(fmt.Sprintf(constants.GetInfoByUsername, username))
+	if module != nil {
+		req.AddParam("from_module", *module)
+	}
+	err = req.GetResponse(res)
+	return
 }
 
 func (p *people) GetBootstrapUsers() (res *responses.BootstrapUsers, err error) {

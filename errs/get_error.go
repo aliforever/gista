@@ -182,6 +182,6 @@ func prettifyMessage(message string) string {
 		message += "."
 	}
 	message = strings.Title(message)
-	message = strings.ReplaceAll(message, "_", " ")
+	message = strings.Replace(message, "_", " ", -1)
 	return message
 }

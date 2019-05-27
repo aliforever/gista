@@ -81,6 +81,8 @@ const Presence string = "direct_v2/get_presence/"
 // People
 const ActivityNews string = "news/inbox/"
 const BootstrapUsers string = "scores/bootstrap/users/"
+const GetInfoById string = "users/%d/info/"
+const GetInfoByUsername string = "users/%s/usernameinfo/"
 
 // Media
 const BlockedMedia string = "media/blocked/"
