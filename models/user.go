@@ -56,7 +56,7 @@ type User struct {
 	CanCreateSponsorTags           interface{}          `json:"can_create_sponsor_tags,omitempty"`
 	HdProfilePicUrlInfo            *ImageCandidate      `json:"hd_profile_pic_url_info,omitempty"`
 	UserTagReviewEnabled           interface{}          `json:"usertag_review_enabled,omitempty"`
-	ProfileContextMutualFollowIds  []string             `json:"profile_context_mutual_follow_ids,omitempty"`
+	ProfileContextMutualFollowIds  interface{}          `json:"profile_context_mutual_follow_ids,omitempty"`
 	ProfileContextLinksWithUserIds []Link               `json:"profile_context_links_with_user_ids,omitempty"`
 	HasBiographyTranslation        bool                 `json:"has_biography_translation,omitempty"`
 	TotalIGTVVideos                int                  `json:"total_igtv_videos,omitempty"`

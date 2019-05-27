@@ -64,6 +64,8 @@ const TimelineFeed string = "feed/timeline/"
 
 // Story
 const ReelsTrayFeed string = "feed/reels_tray/"
+const GetUserReelMediaFeed string = "feed/user/%d/reel_media/"
+const GetUserStoryFeed string = "feed/user/%d/story/"
 
 // Discover
 const SuggestedSearches string = "fbsearch/suggested_searches/"

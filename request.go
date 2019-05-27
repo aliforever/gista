@@ -454,7 +454,13 @@ func (r *request) MapServerResponse(object interface{}, rawResponse string, http
 		case 404:
 			err = errs.RequestedResourceNotExist
 		default:
-			err = errs.NoResponseFromServer
+			switch err.(type) {
+			case *json.UnmarshalTypeError:
+				t, m := "json_unmarshal", err.Error()
+				err = errs.JsonUnmarshal{Type: &t, Message: &m}
+			default:
+				err = errs.NoResponseFromServer
+			}
 		}
 		return
 	}
