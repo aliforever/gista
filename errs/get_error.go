@@ -106,7 +106,7 @@ Loop:
 		for className, patterns := range exceptionMap {
 			for _, pattern := range patterns {
 				if pattern[0] == '/' {
-					r := regexp.MustCompile(strings.ReplaceAll(pattern, "/", ""))
+					r := regexp.MustCompile(strings.Replace(pattern, "/", "", -1))
 					if r.MatchString(message) {
 						exceptionClass = &className
 						break Loop
