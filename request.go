@@ -461,7 +461,7 @@ func (r *request) MapServerResponse(object interface{}, rawResponse string, http
 	if !object.(responses.ResponseInterface).IsOk() {
 		message := object.(responses.ResponseInterface).GetMessage()
 		t := fmt.Sprintf("%T", object)
-		t = strings.ReplaceAll(t, "*responses.", "")
+		t = strings.Replace(t, "*responses.", "", -1)
 		t += "Response"
 		err = errs.GetError(&t, &message, object.(responses.ResponseInterface), httpResponse)
 	}
