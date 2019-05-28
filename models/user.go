@@ -82,7 +82,7 @@ type User struct {
 	Longitude                      float64     `json:"longitude,omitempty"`
 	AddressStreet                  string      `json:"address_street,omitempty"`
 	Zip                            string      `json:"zip,omitempty"`
-	CityId                         string      `json:"city_id,omitempty"` // 64-bit number.
+	CityId                         float64     `json:"city_id,omitempty"` // 64-bit number.
 	CityName                       string      `json:"city_name,omitempty"`
 	PublicEmail                    string      `json:"public_email,omitempty"`
 	IsNeedy                        bool        `json:"is_needy,omitempty"`
