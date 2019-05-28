@@ -52,12 +52,12 @@ type Item struct {
 	 * This is actually a float64 in the reply but is always `.0` so we cast
 	 * it to an int instead to make the number easier to manage.
 	 */
-	ViewCount                    int  `json:"view_count,omitempty"`
-	ViewerCount                  int  `json:"viewer_count,omitempty"`
-	CommentCount                 int  `json:"comment_count,omitempty"`
-	CanViewMorePreviewComments   bool `json:"can_view_more_preview_comments,omitempty"`
-	HasMoreComments              bool `json:"has_more_comments,omitempty"`
-	MaxNumVisiblePreviewComments int  `json:"max_num_visible_preview_comments,omitempty"`
+	ViewCount                    float64 `json:"view_count,omitempty"`
+	ViewerCount                  int     `json:"viewer_count,omitempty"`
+	CommentCount                 int     `json:"comment_count,omitempty"`
+	CanViewMorePreviewComments   bool    `json:"can_view_more_preview_comments,omitempty"`
+	HasMoreComments              bool    `json:"has_more_comments,omitempty"`
+	MaxNumVisiblePreviewComments int     `json:"max_num_visible_preview_comments,omitempty"`
 	/*
 	 * Preview of comments via feed replies.
 	 *
