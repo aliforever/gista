@@ -1,10 +1,10 @@
 package models
 
 type Challenge struct {
-	Url               string      `json:"url"`
-	ApiPath           interface{} `json:"api_path"`
-	HideWebviewHeader interface{} `json:"hide_webview_header"`
-	Lock              interface{} `json:"lock"`
-	Logout            interface{} `json:"logout"`
-	NativeFlow        interface{} `json:"native_flow"`
+	Url               string `json:"url"`
+	ApiPath           string `json:"api_path"`
+	HideWebviewHeader bool   `json:"hide_webview_header"`
+	Lock              bool   `json:"lock"`
+	Logout            bool   `json:"logout"`
+	NativeFlow        bool   `json:"native_flow"`
 }

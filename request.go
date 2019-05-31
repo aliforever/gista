@@ -16,6 +16,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/kr/pretty"
+
 	"github.com/aliforever/gista/errs"
 
 	"github.com/aliforever/gista/responses"
@@ -450,6 +452,9 @@ func (r *request) MapServerResponse(object interface{}, rawResponse string, http
 		object.(responses.ResponseInterface).SetRawResponse(rawResponse)
 	}
 	err = json.Unmarshal([]byte(rawResponse), &object)
+	if strings.Contains(rawResponse, "challenge") {
+		pretty.Println(rawResponse)
+	}
 	object.(responses.ResponseInterface).SetIsOk()
 	if err != nil {
 		httpStatusCode := httpResponse.StatusCode
