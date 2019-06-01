@@ -123,6 +123,7 @@ func GetMediaBestQualityUrl(i interface{}) (url string, err error) {
 		candidates := i.(*models.ImageVersions2).Candidates
 		for _, c := range candidates {
 			if c.Height > biggestHeight {
+				biggestHeight = c.Height
 				url = c.Url
 			}
 		}
@@ -131,6 +132,7 @@ func GetMediaBestQualityUrl(i interface{}) (url string, err error) {
 		biggestHeight := 0
 		for _, v := range i.([]models.VideoVersion) {
 			if v.Height > biggestHeight {
+				biggestHeight = v.Height
 				url = v.Url
 			}
 		}
