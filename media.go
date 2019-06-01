@@ -15,7 +15,7 @@ func newMedia(i *Instagram) *media {
 	return &media{ig: i}
 }
 
-func (m *media) GetInfo(mediaId string) (res *responses.MediaInfo, err error) {
+func (m *media) GetInfo(mediaId int64) (res *responses.MediaInfo, err error) {
 	res = &responses.MediaInfo{}
 	err = m.ig.client.Request(fmt.Sprintf(constants.GetMediaInfo, mediaId)).GetResponse(res)
 	return
