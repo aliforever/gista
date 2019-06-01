@@ -106,6 +106,7 @@ func (ncs *ChallengeSolver) GetSolveChallengeByEmail(address, csrf, ajaxId strin
 	values.Add("choice", "1")
 	p, _ := http.NewRequest("POST", address, strings.NewReader(values.Encode()))
 	p.Header.Set("X-CSRFToken", csrf)
+	p.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36")
 	p.Header.Set("X-Instagram-AJAX", ajaxId)
 	p.Header.Set("X-IG-App-ID", ncs.appId)
 	p.Header.Set("X-Requested-With", "XMLHttpRequest")
@@ -126,6 +127,7 @@ func (ncs *ChallengeSolver) SolveChallenge(address, csrf, ajaxId, securityCode s
 	values := url.Values{}
 	values.Add("security_code", securityCode)
 	p, _ := http.NewRequest("POST", address, strings.NewReader(values.Encode()))
+	p.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36")
 	p.Header.Set("X-CSRFToken", csrf)
 	p.Header.Set("X-Instagram-AJAX", ajaxId)
 	p.Header.Set("X-IG-App-ID", ncs.appId)
