@@ -9,12 +9,10 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/kr/pretty"
 
@@ -380,13 +378,13 @@ func (r *request) getHTTPResponse() (resp *http.Response, err error) {
 			err = errs.ErrorBuildingHTTPRequest(err.Error())
 			return
 		}
-		dump, dumpErr := httputil.DumpRequest(req, true)
+		/*dump, dumpErr := httputil.DumpRequest(req, true)
 		if dumpErr == nil {
 			filePrefix := fmt.Sprintf("%s_%s", time.Now().Format("20060102-150405"), req.Method)
 			if err := ioutil.WriteFile(filePrefix+"_request.dump", dump, 0644); err != nil {
 				fmt.Println(err)
 			}
-		}
+		}*/
 		r.httpResponse, err = r.parent.api(req)
 		if err != nil {
 			err = errs.ErrorGettingHTTPResponse(err.Error())
