@@ -8,6 +8,8 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
+
+	"github.com/kr/pretty"
 )
 
 type ChallengeResponse struct {
@@ -86,10 +88,14 @@ func NewChallengeSolver() *ChallengeSolver {
 
 func (ncs *ChallengeSolver) GetChallengeByUrl(address string) (response *ChallengeResponse, err error) {
 	var res *http.Response
-	res, err = ncs.client.Get(address)
+	req, _ := http.NewRequest("GET", address, nil)
+	req.Header.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/18.17763")
+	res, err = ncs.client.Do(req)
 	if err != nil {
 		return
 	}
+	pretty.Println(res.Header)
+	pretty.Println(res.Cookies())
 	defer res.Body.Close()
 	b, _ := ioutil.ReadAll(res.Body)
 	r := regexp.MustCompile(`<script type="text/javascript">window\._sharedData = ({[\s\S]+});</script>`)
@@ -97,7 +103,6 @@ func (ncs *ChallengeSolver) GetChallengeByUrl(address string) (response *Challen
 
 	response = &ChallengeResponse{}
 	err = json.Unmarshal([]byte(m[0][1]), response)
-
 	return
 }
 
@@ -105,8 +110,8 @@ func (ncs *ChallengeSolver) GetSolveChallengeByEmail(address, csrf, ajaxId strin
 	values := url.Values{}
 	values.Add("choice", "1")
 	p, _ := http.NewRequest("POST", address, strings.NewReader(values.Encode()))
-	p.Header.Set("X-CSRFToken", csrf)
 	p.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36")
+	p.Header.Set("X-CSRFToken", csrf)
 	p.Header.Set("X-Instagram-AJAX", ajaxId)
 	p.Header.Set("X-IG-App-ID", ncs.appId)
 	p.Header.Set("X-Requested-With", "XMLHttpRequest")
@@ -118,6 +123,7 @@ func (ncs *ChallengeSolver) GetSolveChallengeByEmail(address, csrf, ajaxId strin
 	}
 	defer res.Body.Close()
 	b, _ := ioutil.ReadAll(res.Body)
+
 	response = &PostChallengeChoiceResponse{}
 	err = json.Unmarshal(b, response)
 	return

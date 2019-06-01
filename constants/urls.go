@@ -89,6 +89,7 @@ const GetInfoByUsername string = "users/%s/usernameinfo/"
 
 // Media
 const BlockedMedia string = "media/blocked/"
+const GetMediaInfo string = "media/%s/info/"
 
 // Highlight
 const GetHighlightsUserFeed string = "highlights/%d/highlights_tray/"

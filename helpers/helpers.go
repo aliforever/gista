@@ -119,11 +119,11 @@ func GetItemBestQualityUrl(i *models.Item) (info map[string]map[string]string, e
 
 func GetMediaBestQualityUrl(i interface{}) (url string, err error) {
 	switch i.(type) {
-	case models.ImageVersions2:
+	case *models.ImageVersions2:
 		var heights []int
 		var widths []int
 		cMapByH := map[int]string{}
-		candidates := i.(models.ImageVersions2).Candidates
+		candidates := i.(*models.ImageVersions2).Candidates
 		for _, c := range candidates {
 			heights = append(heights, c.Height)
 			widths = append(widths, c.Width)

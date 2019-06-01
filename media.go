@@ -1,6 +1,8 @@
 package gista
 
 import (
+	"fmt"
+
 	"github.com/aliforever/gista/constants"
 	"github.com/aliforever/gista/responses"
 )
@@ -11,6 +13,12 @@ type media struct {
 
 func newMedia(i *Instagram) *media {
 	return &media{ig: i}
+}
+
+func (m *media) GetInfo(mediaId string) (res *responses.MediaInfo, err error) {
+	res = &responses.MediaInfo{}
+	err = m.ig.client.Request(fmt.Sprintf(constants.GetMediaInfo, mediaId)).GetResponse(res)
+	return
 }
 
 func (m *media) GetBlockedMedia() (res *responses.BlockedMedia, err error) {

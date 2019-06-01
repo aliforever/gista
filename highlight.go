@@ -28,9 +28,3 @@ func (h *highlight) GetUserFeed(userId int64) (res *responses.HighlightFeed, err
 		GetResponse(res)
 	return
 }
-
-func (h *highlight) GetBlockedMedia() (res *responses.BlockedMedia, err error) {
-	res = &responses.BlockedMedia{}
-	err = h.ig.client.Request(constants.BlockedMedia).GetResponse(res)
-	return
-}
