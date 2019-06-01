@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"os"
 	"path"
-	"sort"
 
 	errs2 "github.com/aliforever/gista/errs"
 
@@ -120,30 +119,21 @@ func GetItemBestQualityUrl(i *models.Item) (info map[string]map[string]string, e
 func GetMediaBestQualityUrl(i interface{}) (url string, err error) {
 	switch i.(type) {
 	case *models.ImageVersions2:
-		var heights []int
-		var widths []int
-		cMapByH := map[int]string{}
+		biggestHeight := 0
 		candidates := i.(*models.ImageVersions2).Candidates
 		for _, c := range candidates {
-			heights = append(heights, c.Height)
-			widths = append(widths, c.Width)
-			cMapByH[c.Height] = c.Url
+			if c.Height > biggestHeight {
+				url = c.Url
+			}
 		}
-		sort.Ints(heights)
-		//sort.Ints(widths)
-		url = cMapByH[heights[len(heights)-1]]
 		break
 	case []models.VideoVersion:
-		var heights []int
-		var widths []int
-		cMapByH := map[int]string{}
+		biggestHeight := 0
 		for _, v := range i.([]models.VideoVersion) {
-			heights = append(heights, v.Height)
-			widths = append(widths, v.Width)
-			cMapByH[v.Height] = v.Url
+			if v.Height > biggestHeight {
+				url = v.Url
+			}
 		}
-		sort.Ints(heights)
-		url = cMapByH[heights[len(heights)-1]]
 		break
 		//sort.Ints(widths)
 	default:
