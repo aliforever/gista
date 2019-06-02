@@ -110,7 +110,7 @@ func GetItemBestQualityUrl(i *models.Item) (info map[string]map[string]string, e
 				info[m.Id]["type"] = "video"
 				t = m.VideoVersions
 			}
-			info[m.Id]["url"], _ = GetMediaBestQualityUrl(t)
+			info[m.Id]["url"], err = GetMediaBestQualityUrl(t)
 		}
 	}
 	return
