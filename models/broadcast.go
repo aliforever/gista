@@ -11,7 +11,7 @@ type Broadcast struct {
 	BroadcastMessage     string      `json:"broadcast_message"`
 	Muted                interface{} `json:"muted"`
 	MediaId              string      `json:"media_id"`
-	Id                   int         `json:"id"`
+	Id                   int64       `json:"id"`
 	RtmpPlaybackUrl      string      `json:"rtmp_playback_url"`
 	DashAbrPlaybackUrl   string      `json:"dash_abr_playback_url"`
 	DashPlaybackUrl      string      `json:"dash_playback_url"`
