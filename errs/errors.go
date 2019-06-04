@@ -36,6 +36,10 @@ func InvalidItem(item interface{}) error {
 	return errors.New(fmt.Sprintf("Invalid item: %+v", item))
 }
 
+func InvalidIdForIgtv(item interface{}) error {
+	return errors.New(fmt.Sprintf("Invalid ID type: %+v", item))
+}
+
 func InvalidHTTPStatus(statusCode int) error {
 	return errors.New(fmt.Sprintf("Invalid http status code: %d", statusCode))
 }

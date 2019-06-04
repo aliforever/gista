@@ -94,3 +94,6 @@ const GetMediaInfo string = "media/%d/info/"
 
 // Highlight
 const GetHighlightsUserFeed string = "highlights/%d/highlights_tray/"
+
+// Tv
+const GetIGTVChannel string = "igtv/channel/"
