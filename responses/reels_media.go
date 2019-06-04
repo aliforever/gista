@@ -6,6 +6,6 @@ import (
 
 type ReelsMedia struct {
 	Response
-	ReelsMedia []models.Reel `json:"reels_media"`
-	Reels      interface{}   `json:"reels"`
+	ReelsMedia *[]models.Reel          `json:"reels_media,omitempty"`
+	Reels      *map[string]models.Reel `json:"reels,omitempty"`
 }
