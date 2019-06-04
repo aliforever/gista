@@ -14,8 +14,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/kr/pretty"
-
 	"github.com/aliforever/gista/errs"
 
 	"github.com/aliforever/gista/responses"
@@ -31,7 +29,7 @@ type request struct {
 	params           map[string]string
 	body             *string
 	headers          map[string]string
-	posts            map[string]string
+	posts            map[string]interface{}
 	defaultHeaders   bool
 	files            map[string]map[string]interface{}
 	needsAuth        bool
@@ -50,7 +48,7 @@ func newRequest(address string, parent *client) (r *request) {
 	r.apiVersion = 1
 	r.headers = map[string]string{}
 	r.params = map[string]string{}
-	r.posts = map[string]string{}
+	r.posts = map[string]interface{}{}
 	r.files = map[string]map[string]interface{}{}
 	r.handles = map[string]io.Reader{}
 	r.needsAuth = true
@@ -140,9 +138,9 @@ func (r *request) AddDeviceIdPost() *request {
 	return r
 }
 
-func (r *request) AddPost(key, val string) *request {
+func (r *request) AddPost(key string, val interface{}) *request {
 	if r.posts == nil {
-		r.posts = map[string]string{}
+		r.posts = map[string]interface{}{}
 	}
 	r.posts[key] = val
 	return r
@@ -305,10 +303,20 @@ func (r *request) getUrlEncodedBody() io.Reader {
 	return strings.NewReader(r.mapToForm(r.posts).Encode())
 }
 
-func (r *request) mapToForm(data map[string]string) url.Values {
+func (r *request) mapToForm(data map[string]interface{}) url.Values {
 	values := url.Values{}
 	for k, v := range data {
-		values.Add(k, v)
+		switch v.(type) {
+		case string:
+			values.Add(k, v.(string))
+		case int, int8, int16, int32, int64:
+			values.Add(k, fmt.Sprintf("%d", v.(int64)))
+		case []byte:
+			values.Add(k, string(v.([]byte)))
+		case []string:
+			j, _ := json.Marshal(v.([]string))
+			values.Add(k, string(j))
+		}
 	}
 	return values
 }
@@ -413,6 +421,9 @@ func (r *request) GetRawResponse() (raw string, err error) {
 	switch httpResponse.Header.Get("Content-Encoding") {
 	case "gzip":
 		reader, err = gzip.NewReader(httpResponse.Body)
+		if err != nil {
+			return
+		}
 		defer reader.Close()
 	default:
 		reader = httpResponse.Body
@@ -450,9 +461,6 @@ func (r *request) MapServerResponse(object interface{}, rawResponse string, http
 		object.(responses.ResponseInterface).SetRawResponse(rawResponse)
 	}
 	err = json.Unmarshal([]byte(rawResponse), &object)
-	if strings.Contains(rawResponse, "challenge") {
-		pretty.Println(rawResponse)
-	}
 	object.(responses.ResponseInterface).SetIsOk()
 	if err != nil {
 		httpStatusCode := httpResponse.StatusCode

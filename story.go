@@ -44,3 +44,21 @@ func (s *story) GetReelsTrayFeed() (res *responses.ReelsTrayFeed, err error) {
 		GetResponse(res)
 	return
 }
+
+func (s *story) GetReelsMediaFeed(feedList []string, source *string) (res *responses.ReelsMedia, err error) {
+	res = &responses.ReelsMedia{}
+	src := "feed_timeline"
+	if source != nil {
+		src = *source
+	}
+	cps, _ := json.Marshal(constants.SupportedCapabilities)
+	err = s.ig.client.Request(constants.GetReelsMediaFeed).
+		AddPost("supported_capabilities_new", string(cps)).
+		AddPost("user_ids", feedList).
+		AddPost("source", src).
+		AddCSRFPost().
+		AddUIdPost().
+		AddUuIdPost().
+		GetResponse(res)
+	return
+}

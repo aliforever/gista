@@ -31,8 +31,8 @@ func GenerateSignatureForPost(data string) string {
 	return "ig_sig_key_version=" + constants.SigKeyVersion + "&signed_body=" + GenerateSignature(data) + url.QueryEscape(data)
 }
 
-func SignData(data map[string]string /*interface{}*/, exclude *[]string) map[string]string {
-	result := map[string]string{}
+func SignData(data map[string] /*string */ interface{}, exclude *[]string) map[string]interface{} {
+	result := map[string]interface{}{}
 	if exclude != nil {
 		for _, item := range *(exclude) {
 			if _, ok := data[item]; ok {
