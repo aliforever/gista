@@ -37,7 +37,7 @@ type Comment struct {
 	/*	`json:""
 	 * If this is a child in a thread this is the ID of its parent thread.
 	 */
-	ParentCommentId string `json:"parent_comment_id"`
+	ParentCommentId int64 `json:"parent_comment_id"`
 	/*
 	 * Number of child comments in this comment thread.
 	 */
