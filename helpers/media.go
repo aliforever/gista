@@ -149,9 +149,9 @@ func GetMediaBestQualityUrl(i interface{}) (url string, err error) {
 			}
 		}
 		break
-	case []models.VideoVersion:
+	case *[]models.VideoVersion:
 		biggestHeight := 0
-		for _, v := range i.([]models.VideoVersion) {
+		for _, v := range *i.(*[]models.VideoVersion) {
 			if v.Height > biggestHeight {
 				biggestHeight = v.Height
 				url = v.Url

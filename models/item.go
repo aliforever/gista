@@ -23,7 +23,7 @@ type Item struct {
 	OriginalHeight               int             `json:"original_height,omitempty"`
 	CaptionPosition              float64         `json:"caption_position,omitempty"`
 	IsReelMedia                  bool            `json:"is_reel_media,omitempty"`
-	VideoVersions                []VideoVersion  `json:"video_versions,omitempty"`
+	VideoVersions                *[]VideoVersion `json:"video_versions,omitempty"`
 	HasAudio                     bool            `json:"has_audio,omitempty"`
 	VideoDuration                float64         `json:"video_duration,omitempty"`
 	User                         User            `json:"user,omitempty"`
