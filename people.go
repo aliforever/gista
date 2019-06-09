@@ -85,3 +85,9 @@ func (p *people) GetRecentActivityInbox() (res *responses.ActivityNews, err erro
 	err = p.ig.client.Request(constants.ActivityNews).GetResponse(res)
 	return
 }
+
+func (p *people) GetFriendship(userId int64) (res *responses.FriendshipsShow, err error) {
+	res = &responses.FriendshipsShow{}
+	err = p.ig.client.Request(fmt.Sprintf(constants.GetFriendship, userId)).GetResponse(res)
+	return
+}
