@@ -23,6 +23,8 @@ var exceptionMap = map[string][]string{
 	"ForcedPasswordReset": {"/reset(.*?)password/"},
 	"RateLimit":           {"rate_limit_error"},
 	"InvalidParameters":   {"invalid_parameters"},
+	"NotAuthorized":       {"authorized to view user"},
+	"UserNotFound":        {"User not found"},
 }
 
 var errorMap = map[string]func(t, m *string, resp responses.ResponseInterface) error{
@@ -80,6 +82,14 @@ var errorMap = map[string]func(t, m *string, resp responses.ResponseInterface) e
 	},
 	"InvalidParameters": func(t, m *string, resp responses.ResponseInterface) error {
 		err := InvalidParameters{Type: t, Message: m, HTTPResponse: resp}
+		return err
+	},
+	"NotAuthorized": func(t, m *string, resp responses.ResponseInterface) error {
+		err := NotAuthorized{Type: t, Message: m, HTTPResponse: resp}
+		return err
+	},
+	"UserNotFound": func(t, m *string, resp responses.ResponseInterface) error {
+		err := UserNotFound{Type: t, Message: m, HTTPResponse: resp}
 		return err
 	},
 	"BadRequest": func(t, m *string, resp responses.ResponseInterface) error {
@@ -170,7 +180,6 @@ Loop:
 		}
 	}
 
-	//pretty.Println(response, serverErrorType, displayMessage, exceptionClass)
 	e := errorMap[*exceptionClass](serverErrorType, displayMessage, response.(responses.ResponseInterface))
 	err = e
 	return
