@@ -8,11 +8,11 @@ type Location struct {
 	Lat                float64                `json:"lat"`
 	Lng                float64                `json:"lng"`
 	ExternalId         string                 `json:"external_id"`
-	FacebookPlacesId   string                 `json:"facebook_places_id"`
+	FacebookPlacesId   int64                  `json:"facebook_places_id"`
 	City               string                 `json:"city"`
 	Pk                 int64                  `json:"pk"`
 	ShortName          string                 `json:"short_name"`
-	FacebookEventsId   string                 `json:"facebook_events_id"`
+	FacebookEventsId   int64                  `json:"facebook_events_id"`
 	StartTime          interface{}            `json:"start_time"`
 	EndTime            interface{}            `json:"end_time"`
 	LocationDict       map[string]interface{} `json:"location_dict"` /*recursive error on Location type*/
