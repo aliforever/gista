@@ -1,8 +1,8 @@
 package models
 
 type Nametag struct {
-	Mode          int    `json:"mode"`
-	Gradient      string `json:"gradient"`
-	Emoji         string `json:"emoji"`
-	SelfieSticker string `json:"selfie_sticker"`
+	Mode          int         `json:"mode"`
+	Gradient      interface{} `json:"gradient"`
+	Emoji         interface{} `json:"emoji"`
+	SelfieSticker interface{} `json:"selfie_sticker"`
 }
