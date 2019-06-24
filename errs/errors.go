@@ -28,6 +28,10 @@ func InvalidMethodForTwoFactor(method string) error {
 	return errors.New(fmt.Sprintf("You must provide a valid verification method value. given: %s", method))
 }
 
+func MissingMentionInReply(reply string) error {
+	return errors.New(fmt.Sprintf("When replying to a comment, your text must begin with an @-mention to their username.: %s", reply))
+}
+
 func InvalidBiography(bio string) error {
 	return errors.New(fmt.Sprintf("Invalid biography %s, Please provide a 0 to 150 character string as biography.", bio))
 }

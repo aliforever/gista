@@ -1,8 +1,13 @@
 package utils
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 	"io/ioutil"
+	"math"
 	"math/rand"
 	"os"
 	"strconv"
@@ -141,4 +146,19 @@ func FileOrFolderExists(filePath string) bool {
 func FileGetContents(path string) (content string, err error) {
 	data, err := ioutil.ReadFile(path)
 	return string(data), err
+}
+
+func GenerateUserBreadCrumb(size int) string {
+	key := "iN4$aGr0m"
+	date := MicroTime() * 1000
+	term := (rand.Intn(2)+2)*1000 + size*(rand.Intn(6)+15)*100
+	textChangeEventCount := math.Round(float64(size / (rand.Intn(2) + 2)))
+	if textChangeEventCount == 0 {
+		textChangeEventCount = 1
+	}
+	data := fmt.Sprintf("%d %d %f %f", size, term, textChangeEventCount, date)
+	hmc := hmac.New(sha256.New, []byte(key))
+	hmc.Write([]byte(data))
+	d := fmt.Sprintf("%s\n%s\n", hex.EncodeToString(hmc.Sum(nil)), base64.StdEncoding.EncodeToString([]byte(data)))
+	return base64.StdEncoding.EncodeToString([]byte(d))
 }

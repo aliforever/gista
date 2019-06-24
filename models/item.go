@@ -74,7 +74,7 @@ type Item struct {
 	 * Item object.
 	 */
 	Comments                            []Comment                     `json:"comments,omitempty"`
-	CommentsDisabled                    interface{}                   `json:"comments_disabled,omitempty"`
+	CommentsDisabled                    bool                          `json:"comments_disabled,omitempty"`
 	ReelMentions                        []ReelMention                 `json:"reel_mentions,omitempty"`
 	StoryCta                            []StoryCta                    `json:"story_cta,omitempty"`
 	NextMaxId                           interface{}                   `json:"next_max_id,omitempty"`
@@ -155,7 +155,7 @@ type Item struct {
 	AdId                                string                        `json:"ad_id,omitempty"`
 	ActorFbid                           string                        `json:"actor_fbid,omitempty"`
 	IsAd4ad                             interface{}                   `json:"is_ad_4_ad,omitempty"`
-	CommentingDisabledForViewer         interface{}                   `json:"commenting_disabled_for_viewer,omitempty"`
+	CommentingDisabledForViewer         bool                          `json:"commenting_disabled_for_viewer,omitempty"`
 	IsSeen                              interface{}                   `json:"is_seen,omitempty"`
 	StoryEvents                         interface{}                   `json:"story_events,omitempty"`
 	StoryHashtags                       []StoryHashtag                `json:"story_hashtags,omitempty"`

@@ -92,6 +92,7 @@ const GetFriendship string = "friendships/show/%d/"
 // Media
 const BlockedMedia string = "media/blocked/"
 const GetMediaInfo string = "media/%d/info/"
+const CommentMedia string = "media/%d/comment/"
 
 // Highlight
 const GetHighlightsUserFeed string = "highlights/%d/highlights_tray/"

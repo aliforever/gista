@@ -1,7 +1,7 @@
 package models
 
 type Reel struct {
-	Id string `json:"id"`
+	Id int64 `json:"id"`
 	/*
 	 * Unix "taken_at" timestamp of the newest item in their story reel.
 	 */
