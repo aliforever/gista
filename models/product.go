@@ -5,7 +5,7 @@ type Product struct {
 	Price          string         `json:"price"`
 	CurrentPrice   string         `json:"current_price"`
 	FullPrice      string         `json:"full_price"`
-	ProductId      string         `json:"product_id"`
+	ProductId      int64          `json:"product_id"`
 	HasViewerSaved bool           `json:"has_viewer_saved"`
 	Description    string         `json:"description"`
 	MainImage      ProductImage   `json:"main_image"`
