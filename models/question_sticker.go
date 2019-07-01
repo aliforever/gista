@@ -1,8 +1,8 @@
 package models
 
 type QuestionSticker struct {
-	QuestionId string `json:"question_id"`
-	Question   string `json:"question"`
+	QuestionId interface{} `json:"question_id"`
+	Question   string      `json:"question"`
 	/*
 	 * HTML color string such as "#812A2A".
 	 */
