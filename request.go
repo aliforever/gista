@@ -475,7 +475,12 @@ func (r *request) MapServerResponse(object interface{}, rawResponse string, http
 				t, m := "json_unmarshal", err.Error()
 				err = errs.JsonUnmarshal{Type: &t, Message: &m}
 			default:
-				err = errs.NoResponseFromServer
+				if strings.Contains(err.Error(), "json:") {
+					t, m := "json_unmarshal", err.Error()
+					err = errs.JsonUnmarshal{Type: &t, Message: &m}
+				} else {
+					err = errs.NoResponseFromServer
+				}
 			}
 		}
 		return
