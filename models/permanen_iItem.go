@@ -3,7 +3,7 @@ package models
 type PermanentItem struct {
 	ItemId         string         `json:"item_id"`
 	UserId         int64          `json:"user_id"`
-	Timestamp      string         `json:"timestamp"`
+	Timestamp      int64          `json:"timestamp"`
 	ItemType       string         `json:"item_type"`
 	Profile        User           `json:"profile"`
 	Text           string         `json:"text"`

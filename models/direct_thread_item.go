@@ -4,10 +4,10 @@ type DirectThreadItem struct {
 	ItemId                     string                `json:"item_id"`
 	ItemType                   interface{}           `json:"item_type"`
 	Text                       string                `json:"text"`
-	MediaShare                 Item                  `json:"media_share"`
+	MediaShare                 *Item                 `json:"media_share"`
 	PreviewMedias              []Item                `json:"preview_medias"`
 	Media                      DirectThreadItemMedia `json:"media"`
-	UserId                     string                `json:"user_id"`
+	UserId                     int64                 `json:"user_id"`
 	Timestamp                  float64               `json:"timestamp"`
 	ClientContext              string                `json:"client_context"`
 	HideInThread               int                   `json:"hide_in_thread"`

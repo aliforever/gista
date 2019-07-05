@@ -10,5 +10,5 @@ type DirectInbox struct {
 	PendingRequestsUsers []models.User      `json:"pending_requests_users"`
 	Inbox                models.DirectInbox `json:"inbox"`
 	Megaphone            models.Megaphone   `json:"megaphone"`
-	SnapshotAtMs         string             `json:"snapshot_at_ms"`
+	SnapshotAtMs         int64              `json:"snapshot_at_ms"`
 }
