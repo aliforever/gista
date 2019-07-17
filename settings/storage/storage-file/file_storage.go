@@ -152,7 +152,10 @@ func (f *File) SaveUserCookies(rawData string) error {
 }
 
 func (f *File) CloseUser() error {
-	panic("implement me")
+	f.userFolder = ""
+	f.settingsFile = ""
+	f.cookiesFile = ""
+	f.username = ""
 }
 
 func (f *File) CloseLocation() error {
