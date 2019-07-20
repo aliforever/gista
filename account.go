@@ -250,4 +250,37 @@ func (a *account) AgreeConsentFirstStep() (res *responses.Generic, err error) {
 		AddUIdPost().
 		AddUuIdPost().
 		GetResponse(res)
+	return
+}
+
+func (a *account) AgreeConsentSecondStep() (res *responses.Generic, err error) {
+	res = &responses.Generic{}
+
+	m := map[string]string{"existing_user_intro_state": "2"}
+	j, _ := json.Marshal(m)
+	err = a.ig.client.Request(constants.AgreeConsentFirstStep).
+		SetNeedsAuth(false).
+		AddPost("current_screen_key", "qp_intro").
+		AddPost("updates", string(j)).
+		AddCSRFPost().
+		AddUIdPost().
+		AddUuIdPost().
+		GetResponse(res)
+	return
+}
+
+func (a *account) AgreeConsentThirdStep() (res *responses.Generic, err error) {
+	res = &responses.Generic{}
+
+	m := map[string]string{"age_consent_state": "2", "tos_data_policy_consent_state": "2"}
+	j, _ := json.Marshal(m)
+	err = a.ig.client.Request(constants.AgreeConsentFirstStep).
+		SetNeedsAuth(false).
+		AddPost("current_screen_key", "tos_and_two_age_button").
+		AddPost("updates", string(j)).
+		AddCSRFPost().
+		AddUIdPost().
+		AddUuIdPost().
+		GetResponse(res)
+	return
 }
