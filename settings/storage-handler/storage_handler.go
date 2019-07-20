@@ -106,7 +106,7 @@ func (sh *StorageHandler) SetActiveUser(username string) (err error) {
 		return
 	}
 	if sh.username != "" {
-		_ = sh.storage.CloseUser()
+		sh.storage.CloseUser()
 	}
 	sh.username = username
 	sh.userSettings = &map[string]string{}

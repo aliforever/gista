@@ -26,6 +26,7 @@ const SwitchToBusinessProfile string = "business_conversion/get_business_convert
 const SwitchToPersonalProfile string = "business_conversion/convert_to_personal/"
 const CreateBusinessInfo string = "business_conversion/create_business_info/"
 const CheckUsername string = "users/check_username/"
+const AgreeConsentFirstStep string = "consent/existing_user_flow/"
 const GetCommentFilter string = "accounts/get_comment_filter/"
 const SetCommentFilter string = "accounts/set_comment_filter/"
 const GetCommentCategoryFilterDisabled string = "accounts/get_comment_category_filter_disabled/"
@@ -93,6 +94,7 @@ const GetFriendship string = "friendships/show/%d/"
 const BlockedMedia string = "media/blocked/"
 const GetMediaInfo string = "media/%d/info/"
 const CommentMedia string = "media/%d/comment/"
+const CommentLike string = "media/%d/comment_like/"
 
 // Highlight
 const GetHighlightsUserFeed string = "highlights/%d/highlights_tray/"

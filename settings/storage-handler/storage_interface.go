@@ -15,7 +15,7 @@ type StorageInterface interface {
 	GetUserCookiesFilePath() string
 	LoadUserCookies() (*string, error)
 	SaveUserCookies(rawData string) error
-	CloseUser() error
+	CloseUser()
 	CloseLocation() error
 }
 

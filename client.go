@@ -66,7 +66,7 @@ func (c *client) Request(address string) (r *request) {
 
 func (c *client) api(request *http.Request) (resp *http.Response, err error) {
 	request.Header.Set("User-Agent", c.userAgent)
-	request.Header.Set("Connection", "Keep-Alive")
+	request.Header.Set("Connection", "keep-alive")
 	request.Header.Set("X-FB-HTTP-Engine", constants.XFbHttpEngine)
 	request.Header.Set("Accept", "*/*")
 	request.Header.Set("Accept-Encoding", constants.AcceptEncoding)

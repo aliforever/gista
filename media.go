@@ -43,7 +43,14 @@ func (m *media) GetBlockedMedia() (res *responses.BlockedMedia, err error) {
 	err = m.ig.client.Request(constants.BlockedMedia).GetResponse(res)
 	return
 }
-
+func (m *media) LikeComment(commentId int64) (res *responses.Response, err error) {
+	res = &responses.Response{}
+	err = m.ig.client.Request(fmt.Sprintf(constants.CommentLike, commentId)).
+		AddCSRFPost().
+		AddUIdPost().
+		AddUuIdPost().GetResponse(res)
+	return
+}
 func (m *media) Comment(mediaId interface{}, commentText string, replyCommentId *int, module *string) (res *responses.Comment, err error) {
 	res = &responses.Comment{}
 	mediaIdInt := int64(0)

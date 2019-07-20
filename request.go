@@ -21,6 +21,7 @@ import (
 	"github.com/aliforever/gista/constants"
 	"github.com/aliforever/gista/signatures"
 	"github.com/aliforever/gista/utils"
+	"github.com/kr/pretty"
 )
 
 type request struct {
@@ -474,11 +475,15 @@ func (r *request) MapServerResponse(object interface{}, rawResponse string, http
 			case *json.UnmarshalTypeError:
 				t, m := "json_unmarshal", err.Error()
 				err = errs.JsonUnmarshal{Type: &t, Message: &m}
+			case *json.SyntaxError:
+				t, m := "json_syntax", err.Error()+rawResponse
+				err = errs.JsonUnmarshal{Type: &t, Message: &m}
 			default:
 				if strings.Contains(err.Error(), "json:") {
 					t, m := "json_unmarshal", err.Error()
 					err = errs.JsonUnmarshal{Type: &t, Message: &m}
 				} else {
+					pretty.Println(err)
 					err = errs.NoResponseFromServer
 				}
 			}

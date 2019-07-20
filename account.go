@@ -241,3 +241,13 @@ func (a *account) SetContactPointPreFill(usage string) (r *responses.Generic, er
 		AddPost("usage", usage).GetResponse(r)
 	return
 }
+
+func (a *account) AgreeConsentFirstStep() (res *responses.Generic, err error) {
+	res = &responses.Generic{}
+	err = a.ig.client.Request(constants.AgreeConsentFirstStep).
+		SetNeedsAuth(false).
+		AddCSRFPost().
+		AddUIdPost().
+		AddUuIdPost().
+		GetResponse(res)
+}
