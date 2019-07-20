@@ -93,6 +93,7 @@ const GetFriendship string = "friendships/show/%d/"
 const BlockedMedia string = "media/blocked/"
 const GetMediaInfo string = "media/%d/info/"
 const CommentMedia string = "media/%d/comment/"
+const CommentLine string = "media/%d/comment_like/"
 
 // Highlight
 const GetHighlightsUserFeed string = "highlights/%d/highlights_tray/"
