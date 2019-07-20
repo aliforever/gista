@@ -154,8 +154,8 @@ func (f *File) SaveUserCookies(rawData string) error {
 func (f *File) CloseUser() {
 	f.userFolder = ""
 	f.settingsFile = ""
-	f.username = ""
 	f.cookiesFile = ""
+	f.username = ""
 }
 
 func (f *File) CloseLocation() error {
