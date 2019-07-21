@@ -46,7 +46,7 @@ func (m *media) GetBlockedMedia() (res *responses.BlockedMedia, err error) {
 
 func (m *media) LikeComment(commentId int64) (res *responses.CommentLike, err error) {
 	res = &responses.CommentLike{}
-	err = m.ig.client.Request(fmt.Sprintf(constants.CommentLine, commentId)).
+	err = m.ig.client.Request(fmt.Sprintf(constants.CommentLike, commentId)).
 		AddUuIdPost().
 		AddUIdPost().
 		AddCSRFPost().
