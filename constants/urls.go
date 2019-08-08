@@ -89,6 +89,7 @@ const BootstrapUsers string = "scores/bootstrap/users/"
 const GetInfoById string = "users/%d/info/"
 const GetInfoByUsername string = "users/%s/usernameinfo/"
 const GetFriendship string = "friendships/show/%d/"
+const FollowUser string = "friendships/create/%d/"
 
 // Media
 const BlockedMedia string = "media/blocked/"
