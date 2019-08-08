@@ -4,5 +4,5 @@ import "github.com/aliforever/gista/models"
 
 type Friendship struct {
 	Response
-	models.FriendshipStatus
+	FriendshipStatus models.FriendshipStatus `json:"friendship_status"`
 }
