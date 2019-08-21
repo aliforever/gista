@@ -97,7 +97,7 @@ func (m *media) Comment(mediaId interface{}, commentText string, replyCommentId 
 	return
 }
 
-func (m *media) GetComments(mediaId interface{}, options map[string]string) (res responses.MediaComment, err error) {
+func (m *media) GetComments(mediaId interface{}, options map[string]string) (res *responses.MediaComment, err error) {
 	res = &responses.MediaComment{}
 	mediaIdInt := int64(0)
 	switch mediaId.(type) {
