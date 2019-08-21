@@ -11,6 +11,7 @@ import (
 
 	"strings"
 
+	"errors"
 	"github.com/aliforever/gista/constants"
 	"github.com/aliforever/gista/responses"
 )
@@ -46,7 +47,7 @@ func (m *media) GetBlockedMedia() (res *responses.BlockedMedia, err error) {
 
 func (m *media) LikeComment(commentId int64) (res *responses.CommentLike, err error) {
 	res = &responses.CommentLike{}
-	err = m.ig.client.Request(fmt.Sprintf(constants.CommentLine, commentId)).
+	err = m.ig.client.Request(fmt.Sprintf(constants.CommentLike, commentId)).
 		AddUuIdPost().
 		AddUIdPost().
 		AddCSRFPost().
@@ -93,5 +94,42 @@ func (m *media) Comment(mediaId interface{}, commentText string, replyCommentId 
 		request.AddPost("replied_to_comment_id", fmt.Sprintf("%d", replyCommentId))
 	}
 	err = request.GetResponse(res)
+	return
+}
+
+func (m *media) GetComments(mediaId interface{}, options map[string]string) (res responses.MediaComment, err error) {
+	res = &responses.MediaComment{}
+	mediaIdInt := int64(0)
+	switch mediaId.(type) {
+	case int64:
+		mediaIdInt = mediaId.(int64)
+	case string:
+		idTemp, _ := strconv.Atoi(mediaId.(string)[:strings.Index(mediaId.(string), "_")])
+		mediaIdInt = int64(idTemp)
+	}
+	req := m.ig.client.Request(fmt.Sprintf(constants.GetComments, mediaIdInt)).
+		AddParam("can_support_threading", "true")
+	if options != nil {
+		minId, minIdOk := options["min_id"]
+		maxId, maxIdOk := options["max_id"]
+		if minIdOk && maxIdOk {
+			err = errors.New("you can use either 'min_id' or 'max_id', but not both at the same time")
+			return
+		}
+		if minIdOk {
+			req.AddParam("min_id", minId)
+		}
+		if maxIdOk {
+			req.AddParam("max_id", maxId)
+		}
+		if val, ok := options["target_comment_id"]; ok {
+			if minIdOk || maxIdOk {
+				err = errors.New("you cannot use the 'target_comment_id' parameter together with the 'min_id' or 'max_id' parameters")
+				return
+			}
+			req.AddParam("target_comment_id", val)
+		}
+	}
+	err = req.GetResponse(res)
 	return
 }
