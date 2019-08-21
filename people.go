@@ -91,3 +91,15 @@ func (p *people) GetFriendship(userId int64) (res *responses.FriendshipsShow, er
 	err = p.ig.client.Request(fmt.Sprintf(constants.GetFriendship, userId)).GetResponse(res)
 	return
 }
+
+func (p *people) Follow(userId int64) (res *responses.Friendship, err error) {
+	res = &responses.Friendship{}
+	err = p.ig.client.Request(fmt.Sprintf(constants.FollowUser, userId)).
+		AddUuIdPost().
+		AddUIdPost().
+		AddCSRFPost().
+		AddPost("user_id", userId).
+		AddPost("radio_type", "wifi-none").
+		AddDeviceIdPost().GetResponse(res)
+	return
+}
