@@ -94,7 +94,7 @@ const FollowUser string = "friendships/create/%d/"
 // Media
 const BlockedMedia string = "media/blocked/"
 const GetMediaInfo string = "media/%s/info/"
-const CommentMedia string = "media/%d/comment/"
+const CommentMedia string = "media/%s/comment/"
 const CommentLike string = "media/%d/comment_like/"
 const GetComments string = "media/%d/comments/"
 
