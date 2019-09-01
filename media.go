@@ -59,20 +59,21 @@ func (m *media) LikeComment(commentId int64) (res *responses.CommentLike, err er
 
 func (m *media) Comment(mediaId interface{}, commentText string, replyCommentId *int, module *string) (res *responses.Comment, err error) {
 	res = &responses.Comment{}
-	mediaIdInt := int64(0)
+	mediaIdStr := ""
 	switch mediaId.(type) {
 	case int64:
-		mediaIdInt = mediaId.(int64)
+		mediaIdStr = fmt.Sprintf("%d", mediaId.(int64))
+	case int:
+		mediaIdStr = fmt.Sprintf("%d", mediaId.(int))
 	case string:
-		idTemp, _ := strconv.Atoi(mediaId.(string)[:strings.Index(mediaId.(string), "_")])
-		mediaIdInt = int64(idTemp)
+		mediaIdStr = mediaId.(string)
 	}
 	moduleText := ""
 	if module == nil {
 		moduleText = "comments_feed_timeline"
 	}
 
-	request := m.ig.client.Request(fmt.Sprintf(constants.CommentMedia, mediaIdInt)).
+	request := m.ig.client.Request(fmt.Sprintf(constants.CommentMedia, mediaIdStr)).
 		AddPost("user_breadcrumb", utils.GenerateUserBreadCrumb(len([]rune(commentText)))).
 		AddPost("idempotence_token", signatures.GenerateUUID(true)).
 		AddUuIdPost().
