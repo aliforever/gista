@@ -37,7 +37,6 @@ func (m *media) GetInfo(mediaId interface{}) (res *responses.MediaInfo, err erro
 	case string:
 		mediaIdStr = mediaId.(string)
 	}
-	fmt.Println(mediaIdStr)
 	res = &responses.MediaInfo{}
 	err = m.ig.client.Request(fmt.Sprintf(constants.GetMediaInfo, mediaIdStr)).GetResponse(res)
 	return
