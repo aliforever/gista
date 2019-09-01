@@ -196,6 +196,7 @@ func (r *request) AddHeader(key, val string) *request {
 
 func (r *request) addDefaultHeaders() *request {
 	if r.defaultHeaders {
+		r.headers["X-Bloks-Version-Id"] = "a4b4b8345a67599efe117ad96b8a9cb357bb51ac3ee00c3a48be37ce10f2bb4c"
 		r.headers["X-IG-App-ID"] = constants.FacebookAnalyticsApplicationId
 		r.headers["X-IG-Capabilities"] = constants.XIgCapabilities
 		r.headers["X-IG-Connection-Type"] = constants.XIgConnectionType

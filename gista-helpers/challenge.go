@@ -1,4 +1,4 @@
-package helpers
+package gista_helpers
 
 import (
 	"encoding/json"

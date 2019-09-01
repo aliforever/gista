@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"errors"
+
 	"github.com/aliforever/gista/constants"
 	"github.com/aliforever/gista/responses"
 )
@@ -25,17 +26,20 @@ func newMedia(i *Instagram) *media {
 }
 
 func (m *media) GetInfo(mediaId interface{}) (res *responses.MediaInfo, err error) {
-	mediaIdInt := int64(0)
+	mediaIdStr := ""
 	switch mediaId.(type) {
 	case int64:
-		mediaIdInt = mediaId.(int64)
+		id := int(mediaId.(int64))
+		mediaIdStr = strconv.Itoa(id)
+	case int:
+		id := int(mediaId.(int))
+		mediaIdStr = strconv.Itoa(id)
 	case string:
-		idTemp, _ := strconv.Atoi(mediaId.(string)[:strings.Index(mediaId.(string), "_")])
-		mediaIdInt = int64(idTemp)
+		mediaIdStr = mediaId.(string)
 	}
-
+	fmt.Println(mediaIdStr)
 	res = &responses.MediaInfo{}
-	err = m.ig.client.Request(fmt.Sprintf(constants.GetMediaInfo, mediaIdInt)).GetResponse(res)
+	err = m.ig.client.Request(fmt.Sprintf(constants.GetMediaInfo, mediaIdStr)).GetResponse(res)
 	return
 }
 
