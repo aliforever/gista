@@ -12,6 +12,10 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/go-errors/errors"
+
+	"github.com/aliforever/gista/signatures"
 )
 
 var DefaultTempPath = ""
@@ -161,4 +165,11 @@ func GenerateUserBreadCrumb(size int) string {
 	hmc.Write([]byte(data))
 	d := fmt.Sprintf("%s\n%s\n", hex.EncodeToString(hmc.Sum(nil)), base64.StdEncoding.EncodeToString([]byte(data)))
 	return base64.StdEncoding.EncodeToString([]byte(d))
+}
+
+func ThrowIfInvalidRankToken(rankToken string) (err error) {
+	if !signatures.IsValidUUID(rankToken) {
+		err = errors.New(rankToken + " is not a valid tank token")
+	}
+	return
 }
