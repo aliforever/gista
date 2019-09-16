@@ -121,6 +121,6 @@ func ReorderByHashCode(data map[string]string) (result map[string]string) {
 }
 
 func IsValidUUID(uuid string) bool {
-	r := regexp.MustCompile(`#^[a-f\d]{8}-(?:[a-f\d]{4}-){3}[a-f\d]{12}$#D`)
+	r := regexp.MustCompile(`#^[a-f\d]{8}-(?:[a-f\d]{4}-){3}[a-f\d]{12}$#D`) // TODO: Fix Regexp
 	return r.MatchString(uuid)
 }

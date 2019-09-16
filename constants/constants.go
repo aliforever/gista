@@ -72,12 +72,12 @@ var (
 	SurfaceParam = []string{"4715", "5734"}
 
 	// Internal Feedtype Constants. CRITICAL: EVERY value here MUST be unique!
-	FeedTimeline      = 1
-	FeedTimelineAlbum = 2
-	FeedStory         = 3
-	FeedDirect        = 4
-	FeedDirectStory   = 5
-	FeedTv            = 6
+	FeedTimeline      = "1"
+	FeedTimelineAlbum = "2"
+	FeedStory         = "3"
+	FeedDirect        = "4"
+	FeedDirectStory   = "5"
+	FeedTv            = "6"
 	DownloadPaths     = map[string]string{
 		"photo": "downloads/photos",
 		"video": "downloads/videos",

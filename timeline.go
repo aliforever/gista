@@ -145,3 +145,7 @@ func (t *timeline) GetTimelineFeed(maxId *string, options map[string]interface{}
 	err = request.GetResponse(res)
 	return
 }
+
+func (t *timeline) UploadPhoto(photoFileName string, externalMetaData map[string]string) (res *responses.UserTimelineFeed, err error) {
+	return
+}

@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/aliforever/gista/utils"
-
 	"github.com/aliforever/gista/constants"
 	"github.com/aliforever/gista/responses"
 )
@@ -108,10 +106,10 @@ func (p *people) Follow(userId int64) (res *responses.Friendship, err error) {
 
 func (p *people) GetFollowers(userId int64, rankToken string, searchQuery *string, maxId *string) (res *responses.FollowerAndFollowing, err error) {
 	res = &responses.FollowerAndFollowing{}
-	err = utils.ThrowIfInvalidRankToken(rankToken)
-	if err != nil {
+	/*	if !signatures.IsValidUUID(rankToken) {
+		err = errors.New(rankToken + " is not a valid rank token")
 		return
-	}
+	}*/
 	req := p.ig.client.Request(fmt.Sprintf(constants.Followers, userId)).
 		AddParam("rank_token", rankToken)
 	if searchQuery != nil {

@@ -1,21 +1,30 @@
 package utils
 
 import (
+	"bytes"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
+	"image"
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
+	"io"
 	"io/ioutil"
 	"math"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 
-	"github.com/go-errors/errors"
+	_ "golang.org/x/image/webp"
 
-	"github.com/aliforever/gista/signatures"
+	"github.com/rwcarlsen/goexif/tiff"
+
+	"github.com/rwcarlsen/goexif/exif"
 )
 
 var DefaultTempPath = ""
@@ -147,6 +156,200 @@ func FileOrFolderExists(filePath string) bool {
 	return true
 }
 
+func IsDirectory(filePath string) bool {
+	if fi, err := os.Stat(filePath); os.IsNotExist(err) {
+		return false
+	} else {
+		switch mode := fi.Mode(); {
+		case mode.IsDir():
+			return true
+		}
+	}
+	return true
+}
+
+func RemoveDirectory(filePath string) bool {
+	if fi, err := os.Stat(filePath); os.IsNotExist(err) {
+		return false
+	} else {
+		switch mode := fi.Mode(); {
+		case mode.IsDir():
+			return true
+		}
+	}
+	return true
+}
+
+func Realpath(fpath string) (string, error) {
+
+	if len(fpath) == 0 {
+		return "", os.ErrInvalid
+	}
+
+	if !filepath.IsAbs(fpath) {
+		pwd, err := os.Getwd()
+		if err != nil {
+			return "", err
+		}
+		fpath = filepath.Join(pwd, fpath)
+	}
+
+	path := []byte(fpath)
+	nlinks := 0
+	start := 1
+	prev := 1
+	for start < len(path) {
+		c := nextComponent(path, start)
+		cur := c[start:]
+
+		switch {
+
+		case len(cur) == 0:
+			copy(path[start:], path[start+1:])
+			path = path[0 : len(path)-1]
+
+		case len(cur) == 1 && cur[0] == '.':
+			if start+2 < len(path) {
+				copy(path[start:], path[start+2:])
+			}
+			path = path[0 : len(path)-2]
+
+		case len(cur) == 2 && cur[0] == '.' && cur[1] == '.':
+			copy(path[prev:], path[start+2:])
+			path = path[0 : len(path)+prev-(start+2)]
+			prev = 1
+			start = 1
+
+		default:
+
+			fi, err := os.Lstat(string(c))
+			if err != nil {
+				return "", err
+			}
+			if isSymlink(fi) {
+
+				nlinks++
+				if nlinks > 16 {
+					return "", os.ErrInvalid
+				}
+
+				var link string
+				link, err = os.Readlink(string(c))
+				after := string(path[len(c):])
+
+				// switch symlink component with its real path
+				path = switchSymlinkCom(path, start, link, after)
+
+				prev = 1
+				start = 1
+			} else {
+				// Directories
+				prev = start
+				start = len(c) + 1
+			}
+		}
+	}
+
+	for len(path) > 1 && path[len(path)-1] == os.PathSeparator {
+		path = path[0 : len(path)-1]
+	}
+	return string(path), nil
+
+}
+
+// switch a symbolic link component to its real path
+func switchSymlinkCom(path []byte, start int, link, after string) []byte {
+
+	if link[0] == os.PathSeparator {
+		// Absolute links
+		return []byte(filepath.Join(link, after))
+	}
+
+	// Relative links
+	return []byte(filepath.Join(string(path[0:start]), link, after))
+}
+
+func isSymlink(fi os.FileInfo) bool {
+	return fi.Mode()&os.ModeSymlink == os.ModeSymlink
+}
+
+func nextComponent(path []byte, start int) []byte {
+	v := bytes.IndexByte(path[start:], os.PathSeparator)
+	if v < 0 {
+		return path
+	}
+	return path[0 : start+v]
+}
+
+func GetImageDimension(imagePath string) (width int, height int, err error) {
+	var file *os.File
+	file, err = os.Open(imagePath)
+	if err != nil {
+		return
+	}
+	defer file.Close()
+	var img image.Config
+	img, _, err = image.DecodeConfig(file)
+	if err != nil {
+		return
+	}
+	width = img.Width
+	height = img.Height
+	return
+}
+
+func GetImageOrientation(imagePath string) (orientation string, err error) {
+	var file *os.File
+	file, err = os.Open(imagePath)
+	if err != nil {
+		return
+	}
+	defer file.Close()
+
+	file.Seek(0, io.SeekStart)
+	var x *exif.Exif
+	x, err = exif.Decode(file)
+	if err != nil {
+		orientation = "1"
+		return
+	}
+	if x != nil {
+		var orient *tiff.Tag
+		orient, err = x.Get(exif.Orientation)
+		if err != nil {
+			orientation = "1"
+			return
+		}
+		if orient != nil {
+			orientation = orient.String()
+			return
+		}
+	}
+	orientation = "1"
+	return
+}
+
+func GetFileSize(filePath string) (size int64, err error) {
+	var fi os.FileInfo
+	fi, err = os.Stat(filePath)
+	if err != nil {
+		return
+	}
+	size = fi.Size()
+	return
+}
+
+func GuessImageFormat(filePath string) (format string, err error) {
+	var file *os.File
+	file, err = os.Open(filePath)
+	if err != nil {
+		return
+	}
+	defer file.Close()
+	_, format, err = image.DecodeConfig(file)
+	return
+}
+
 func FileGetContents(path string) (content string, err error) {
 	data, err := ioutil.ReadFile(path)
 	return string(data), err
@@ -165,11 +368,4 @@ func GenerateUserBreadCrumb(size int) string {
 	hmc.Write([]byte(data))
 	d := fmt.Sprintf("%s\n%s\n", hex.EncodeToString(hmc.Sum(nil)), base64.StdEncoding.EncodeToString([]byte(data)))
 	return base64.StdEncoding.EncodeToString([]byte(d))
-}
-
-func ThrowIfInvalidRankToken(rankToken string) (err error) {
-	if !signatures.IsValidUUID(rankToken) {
-		err = errors.New(rankToken + " is not a valid tank token")
-	}
-	return
 }

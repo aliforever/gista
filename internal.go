@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/go-errors/errors"
+
 	"github.com/aliforever/gista/signatures"
 
 	"github.com/aliforever/gista/models"
@@ -219,5 +221,23 @@ func (i *internal) ReadMsisdnHeader(usage string, subNoKey *string) (response *r
 	}
 	response = &responses.MSISDNHeader{}
 	err = request.GetResponse(response)
+	return
+}
+
+func (i *internal) UploadSinglePhoto(targetFeed string, photoFileName string, internalMetaData, externalMetaData interface{}) (response *responses.MSISDNHeader, err error) {
+	/*
+	   if ($targetFeed !== Constants::FEED_TIMELINE
+	               && $targetFeed !== Constants::FEED_STORY
+	               && $targetFeed !== Constants::FEED_DIRECT_STORY
+	           ) {
+	               throw new \InvalidArgumentException(sprintf('Bad target feed "%s".', $targetFeed));
+	           }*/
+	if targetFeed != constants.FeedTimeline && targetFeed != constants.FeedStory && targetFeed != constants.FeedDirectStory {
+		err = errors.New(fmt.Sprintf("Bad target feed %s", targetFeed))
+		return
+	}
+	if internalMetaData == nil {
+		//internalMetaData =
+	}
 	return
 }
