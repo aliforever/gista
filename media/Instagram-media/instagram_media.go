@@ -23,9 +23,9 @@ type InstagramMedia struct {
 	MinAspectRatio                *float64
 	MaxAspectRatio                *float64
 	AllowNewAspectDeviation       *bool
-	HorCropFocus                  int
-	VerCropFocus                  int
-	BgColor                       []int
+	HorCropFocus                  *int
+	VerCropFocus                  *int
+	BgColor                       []uint8
 	Operation                     int
 	TmpPath                       string
 	Constraints                   media.Constraints
@@ -33,10 +33,12 @@ type InstagramMedia struct {
 	Details                       media.Media
 	ForceTargetAspectRatio        *float64
 	HasUserForceTargetAspectRatio bool
+	CreateOutputFileFunc          func(srcRect, dstRect geometry.Rectangle, outputCanvas geometry.Dimensions) (string, error)
 }
 
-func NewInstagramMedia(inputFile string, options map[string]interface{}) (im *InstagramMedia, err error) {
+func NewInstagramMedia(createOutputFileFunc func(srcRect, dstRect geometry.Rectangle, outputCanvas geometry.Dimensions) (string, error), inputFile string, options map[string]interface{}) (im *InstagramMedia, err error) {
 	im = &InstagramMedia{}
+	im.CreateOutputFileFunc = createOutputFileFunc
 	if !utils.FileOrFolderExists(inputFile) {
 		err = errors.New(fmt.Sprintf(`Input file "%s" doesn"t exist.`, inputFile))
 		return
@@ -55,7 +57,7 @@ func NewInstagramMedia(inputFile string, options map[string]interface{}) (im *In
 			err = errors.New("Horizontal crop focus must be between -50 and 50.")
 			return
 		} else {
-			im.HorCropFocus = val
+			im.HorCropFocus = &val
 		}
 	}
 	if tf, ok := options["verCropFocus"]; ok {
@@ -63,7 +65,7 @@ func NewInstagramMedia(inputFile string, options map[string]interface{}) (im *In
 			err = errors.New("Vertical crop focus must be between -50 and 50.")
 			return
 		} else {
-			im.VerCropFocus = val
+			im.VerCropFocus = &val
 		}
 	}
 	if tf, ok := options["operation"]; ok {
@@ -132,9 +134,9 @@ func NewInstagramMedia(inputFile string, options map[string]interface{}) (im *In
 			allowNewAspectDeviation = &val
 		}
 	}
-	var bgColor []int
+	var bgColor []uint8
 	if tf, ok := options["bgColor"]; ok {
-		if val, ok := tf.([]int); !ok {
+		if val, ok := tf.([]uint8); !ok {
 			err = errors.New(fmt.Sprintf("invalid option value type, %+v, expected value is []int", tf))
 			return
 		} else {
@@ -222,7 +224,7 @@ func NewInstagramMedia(inputFile string, options map[string]interface{}) (im *In
 		err = errors.New("The background color must be a 3-element array [R, G, B].")
 		return
 	} else if bgColor == nil {
-		bgColor = []int{255, 255, 255}
+		bgColor = []uint8{255, 255, 255}
 	}
 	im.BgColor = bgColor
 
@@ -314,6 +316,7 @@ func (im *InstagramMedia) process() (path string, err error) {
 		return
 	}
 	outputCanvas := canvasInfo["canvas"].(geometry.Dimensions)
+	var dstRect, srcRect geometry.Rectangle
 	if im.Operation == Crop {
 		idealCanvas := geometry.NewDimensions(outputCanvas.GetWidth()-canvasInfo["mod2WidthDiff"].(int), outputCanvas.GetHeight()-canvasInfo["mod2HeightDiff"].(int))
 		idealWidthScale := float64(idealCanvas.GetWidth() / inputCanvas.GetWidth())
@@ -324,8 +327,119 @@ func (im *InstagramMedia) process() (path string, err error) {
 		im.debugDimensions(idealCanvas.GetWidth(), idealCanvas.GetHeight(), &text)
 		text = "CROP: Scale of Ideally Cropped Canvas vs Input Canvas"
 		im.debugText(text, "width=%.8f, height=%.8f", idealWidthScale, idealHeightScale)
+		hasCropped := "height"
+		overallRescale := idealWidthScale
+		if idealCanvas.GetAspectRatio() == inputCanvas.GetAspectRatio() {
+			hasCropped = "nothing"
+			overallRescale = idealWidthScale
+		} else if idealCanvas.GetAspectRatio() < inputCanvas.GetAspectRatio() {
+			hasCropped = "width"
+			overallRescale = idealHeightScale
+		}
+		im.debugText("CROP: Detecting Cropped Direction", "cropped=%s, overallRescale=%.8f", hasCropped, overallRescale)
+		var croppedInputCanvas geometry.Dimensions
+		result := 1.00 / overallRescale
+		rounding := "round"
+		croppedInputCanvas, err = idealCanvas.WithRescaling(&result, &rounding)
+		if err != nil {
+			return
+		}
+		text = "CROP: Rescaled Ideally Cropped Canvas to Input Dimension Space"
+		im.debugDimensions(croppedInputCanvas.GetWidth(), croppedInputCanvas.GetHeight(), &text)
+
+		rescaledMod2WidthDiff := int(math.Round(float64(canvasInfo["mod2WidthDiff"].(int)) * (1 / overallRescale)))
+		rescaledMod2HeightDiff := int(math.Round(float64(canvasInfo["mod2HeightDiff"].(int)) * (1 / overallRescale)))
+		im.debugText("CROP: Rescaled Mod2 Adjustments to Input Dimension Space", "width=%s, height=%s, widthRescaled=%s, heightRescaled=%s", canvasInfo["mod2WidthDiff"], canvasInfo["mod2HeightDiff"], rescaledMod2WidthDiff, rescaledMod2HeightDiff)
+		croppedInputCanvas = geometry.NewDimensions(croppedInputCanvas.GetWidth()+rescaledMod2WidthDiff, croppedInputCanvas.GetHeight()+rescaledMod2HeightDiff)
+		text = "CROP: Applied Mod2 Adjustments to Final Cropped Input Canvas"
+		im.debugDimensions(croppedInputCanvas.GetWidth(), croppedInputCanvas.GetHeight(), &text)
+		croppedInputCanvasWidth := inputCanvas.GetWidth()
+		if croppedInputCanvas.GetWidth() <= inputCanvas.GetWidth() {
+			croppedInputCanvasWidth = croppedInputCanvas.GetWidth()
+		}
+
+		croppedInputCanvasHeight := inputCanvas.GetHeight()
+		if croppedInputCanvas.GetWidth() <= inputCanvas.GetWidth() {
+			croppedInputCanvasWidth = croppedInputCanvas.GetHeight()
+		}
+
+		croppedInputCanvas = geometry.NewDimensions(croppedInputCanvasWidth, croppedInputCanvasHeight)
+		text = "CROP: Clamped to Legal Input Max-Dimensions"
+		im.debugDimensions(croppedInputCanvas.GetWidth(), croppedInputCanvas.GetHeight(), &text)
+		x1, y1 := 0, 0
+		x2 := inputCanvas.GetWidth()
+		y2 := inputCanvas.GetHeight()
+		im.debugText("CROP: Initializing X/Y Variables to Full Input Canvas Size", "x1=%s, x2=%s, y1=%s, y2=%s", x1, x2, y1, y2)
+		widthDiff := croppedInputCanvas.GetWidth() - inputCanvas.GetWidth()
+		heightDiff := croppedInputCanvas.GetHeight() - inputCanvas.GetHeight()
+		im.debugText("CROP: Calculated Input Canvas Crop Amounts", "width=%s px, height=%s px", widthDiff, heightDiff)
+		if widthDiff < 0 {
+			horCropFocus := 0
+			if im.HorCropFocus != nil {
+				horCropFocus = *im.HorCropFocus
+			}
+
+			im.debugText("CROP: Horizontal Crop Focus", "focus=%s", horCropFocus)
+
+			if im.Details.IsHorizontallyFlipped() {
+				horCropFocus = -horCropFocus
+				im.debugText("CROP: Media is HorFlipped, Flipping Horizontal Crop Focus", "focus=%s", horCropFocus)
+			}
+
+			absWidthDiff := math.Abs(float64(widthDiff))
+			x1 = int(math.Floor(absWidthDiff * (50 + float64(horCropFocus)) / 100))
+			x2 = x2 - (int(absWidthDiff) - x1)
+			im.debugText("CROP: Calculated New X Offsets", "x1=%s, x2=%s", x1, x2)
+		}
+		if heightDiff < 0 {
+			// Vertical cropping. Focus on top by default (to keep faces).
+			verCropFocus := -50
+			if im.VerCropFocus != nil {
+				verCropFocus = *im.VerCropFocus
+			}
+			im.debugText("CROP: Vertical Crop Focus", "focus=%s", verCropFocus)
+
+			if im.Details.IsVerticallyFlipped() {
+				verCropFocus = -verCropFocus
+				im.debugText("CROP: Media is VerFlipped, Flipping Vertical Crop Focus", "focus=%s", verCropFocus)
+			}
+
+			absHeightDiff := math.Abs(float64(heightDiff))
+			y1 = int(math.Floor(absHeightDiff * (50 + float64(verCropFocus)) / 100))
+			y2 = y2 - (int(absHeightDiff) - y1)
+			im.debugText("CROP: Calculated New Y Offsets", "y1=%s, y2=%s", y1, y2)
+		}
+		srcRect = geometry.NewRectangle(x1, y1, x2-x1, y2-y1)
+		im.debugText("CROP_SRC: Input Canvas Source Rectangle", "x1=%s, x2=%s, y1=%s, y2=%s, width=%s, height=%s, aspect=%.8f", srcRect.GetX1(), srcRect.GetX2(), srcRect.GetY1(), srcRect.GetY2(), srcRect.GetWidth(), srcRect.GetHeight(), srcRect.GetAspectRatio())
+		dstRect = geometry.NewRectangle(0, 0, outputCanvas.GetWidth(), outputCanvas.GetHeight())
+		im.debugText("CROP_DST: Output Canvas Destination Rectangle", "x1=%s, x2=%s, y1=%s, y2=%s, width=%s, height=%s, aspect=%.8f", dstRect.GetX1(), dstRect.GetX2(), dstRect.GetY1(), dstRect.GetY2(), dstRect.GetWidth(), dstRect.GetHeight(), dstRect.GetAspectRatio())
+	} else if im.Operation == Expand {
+		srcRect = geometry.NewRectangle(0, 0, inputCanvas.GetWidth(), inputCanvas.GetHeight())
+		im.debugText("EXPAND_SRC: Input Canvas Source Rectangle", "x1=%s, x2=%s, y1=%s, y2=%s, width=%s, height=%s, aspect=%.8f", srcRect.GetX1(), srcRect.GetX2(), srcRect.GetY1(), srcRect.GetY2(), srcRect.GetWidth(), srcRect.GetHeight(), srcRect.GetAspectRatio())
+
+		outputWidthScale := float64(outputCanvas.GetWidth() / inputCanvas.GetWidth())
+		outputHeightScale := float64(outputCanvas.GetHeight() / inputCanvas.GetHeight())
+		scale := math.Min(outputWidthScale, outputHeightScale)
+		im.debugText("EXPAND: Calculating Scale to Fit Input on Output Canvas", "scale=%.8f", scale)
+		round := "ceil"
+		var rec *geometry.Rectangle
+		rec, err = srcRect.WithRescaling(&scale, &round)
+		if err != nil {
+			return
+		}
+		dstRect = *rec
+		text := "EXPAND: Rescaled Input to Output Dimension Space"
+		im.debugDimensions(dstRect.GetWidth(), dstRect.GetHeight(), &text)
+
+		dstX := int(math.Floor(float64(outputCanvas.GetWidth()-dstRect.GetWidth()) / 2))
+		dstY := int(math.Floor(float64(outputCanvas.GetHeight()-dstRect.GetHeight()) / 2))
+		im.debugText("EXPAND: Calculating Centered Destination on Output Canvas", "dst_x=%s, dst_y=%s", dstX, dstY)
+		dstRect = geometry.NewRectangle(dstX, dstY, dstRect.GetWidth(), dstRect.GetHeight())
+		im.debugText("EXPAND_DST: Output Canvas Destination Rectangle", "x1=%s, x2=%s, y1=%s, y2=%s, width=%s, height=%s, aspect=%.8f", dstRect.GetX1(), dstRect.GetX2(), dstRect.GetY1(), dstRect.GetY2(), dstRect.GetWidth(), dstRect.GetHeight(), dstRect.GetAspectRatio())
+	} else {
+		err = errors.New(fmt.Sprintf("Unsupported operation: %d.", im.Operation))
 	}
-	// TODO:
+	im.CreateOutputFileFunc(srcRect, dstRect, outputCanvas)
 	return
 }
 

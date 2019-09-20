@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/go-errors/errors"
+
 	"github.com/aliforever/gista/constants"
 	"github.com/aliforever/gista/responses"
 )
@@ -104,7 +106,7 @@ func (p *people) Follow(userId int64) (res *responses.Friendship, err error) {
 	return
 }
 
-func (p *people) GetFollowers(userId int64, rankToken string, searchQuery *string, maxId *string) (res *responses.FollowerAndFollowing, err error) {
+func (p *people) GetFollowers(userId int64, rankToken string, maxId *string) (res *responses.FollowerAndFollowing, err error) {
 	res = &responses.FollowerAndFollowing{}
 	/*	if !signatures.IsValidUUID(rankToken) {
 		err = errors.New(rankToken + " is not a valid rank token")
@@ -112,12 +114,26 @@ func (p *people) GetFollowers(userId int64, rankToken string, searchQuery *strin
 	}*/
 	req := p.ig.client.Request(fmt.Sprintf(constants.Followers, userId)).
 		AddParam("rank_token", rankToken)
-	if searchQuery != nil {
-		req.AddParam("query", *searchQuery)
-	}
 	if maxId != nil {
 		req.AddParam("max_id", *maxId)
 	}
+	err = req.GetResponse(res)
+	return
+}
+
+func (p *people) SearchFollowers(userId int64, rankToken string, searchQuery string) (res *responses.SearchFollowerAndFollowing, err error) {
+	res = &responses.SearchFollowerAndFollowing{}
+	/*	if !signatures.IsValidUUID(rankToken) {
+		err = errors.New(rankToken + " is not a valid rank token")
+		return
+	}*/
+	req := p.ig.client.Request(fmt.Sprintf(constants.Followers, userId)).
+		AddParam("rank_token", rankToken)
+	if searchQuery == "" {
+		err = errors.New("empty search query")
+	}
+	req.AddParam("query", searchQuery)
+
 	err = req.GetResponse(res)
 	return
 }

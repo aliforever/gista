@@ -52,10 +52,10 @@ func (m *Media) Validate(constraints Constraints) (err error) {
 		err = errors.New(fmt.Sprintf("Instagram only accepts non-rotated media. Your file '%s' is either rotated or flipped or both.", fileName))
 	}
 	aspectRatio := m.GetAspectRatio()
-	minAspectRatio := constraints.getMinAspectRatio()
-	maxAspectRatio := constraints.getMaxAspectRatio()
+	minAspectRatio := constraints.GetMinAspectRatio()
+	maxAspectRatio := constraints.GetMaxAspectRatio()
 	if aspectRatio < minAspectRatio || aspectRatio > maxAspectRatio {
-		err = errors.New(fmt.Sprintf("Instagram only accepts %s media with aspect ratios between %.3f and %.3f. Your file '%s' has a %.4f aspect ratio.", constraints.getTitle(), minAspectRatio, maxAspectRatio, fileName, aspectRatio))
+		err = errors.New(fmt.Sprintf("Instagram only accepts %s media with aspect ratios between %.3f and %.3f. Your file '%s' has a %.4f aspect ratio.", constraints.GetTitle(), minAspectRatio, maxAspectRatio, fileName, aspectRatio))
 	}
 	return
 }
