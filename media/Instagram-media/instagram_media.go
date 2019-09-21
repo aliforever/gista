@@ -2,11 +2,11 @@ package Instagram_media
 
 import (
 	"fmt"
+	"image/color"
 	"math"
 	"os"
 
 	"github.com/aliforever/gista/media/geometry"
-
 	mediaconstraints "github.com/aliforever/gista/media/media-constraints"
 
 	"github.com/aliforever/gista/utils"
@@ -25,7 +25,7 @@ type InstagramMedia struct {
 	AllowNewAspectDeviation       *bool
 	HorCropFocus                  *int
 	VerCropFocus                  *int
-	BgColor                       []uint8
+	BgColor                       color.Color
 	Operation                     int
 	TmpPath                       string
 	Constraints                   media.Constraints
@@ -37,7 +37,7 @@ type InstagramMedia struct {
 }
 
 func NewInstagramMedia(createOutputFileFunc func(srcRect, dstRect geometry.Rectangle, outputCanvas geometry.Dimensions) (string, error), inputFile string, options map[string]interface{}) (im *InstagramMedia, err error) {
-	im = &InstagramMedia{}
+	im = &InstagramMedia{Debug: true}
 	im.CreateOutputFileFunc = createOutputFileFunc
 	if !utils.FileOrFolderExists(inputFile) {
 		err = errors.New(fmt.Sprintf(`Input file "%s" doesn"t exist.`, inputFile))
@@ -134,9 +134,9 @@ func NewInstagramMedia(createOutputFileFunc func(srcRect, dstRect geometry.Recta
 			allowNewAspectDeviation = &val
 		}
 	}
-	var bgColor []uint8
+	var bgColor color.Color
 	if tf, ok := options["bgColor"]; ok {
-		if val, ok := tf.([]uint8); !ok {
+		if val, ok := tf.(color.Color); !ok {
 			err = errors.New(fmt.Sprintf("invalid option value type, %+v, expected value is []int", tf))
 			return
 		} else {
@@ -220,11 +220,8 @@ func NewInstagramMedia(createOutputFileFunc func(srcRect, dstRect geometry.Recta
 	im.MaxAspectRatio = MaxAspectRatio
 	im.AllowNewAspectDeviation = allowNewAspectDeviation
 
-	if bgColor != nil && (len(bgColor) != 3) {
-		err = errors.New("The background color must be a 3-element array [R, G, B].")
-		return
-	} else if bgColor == nil {
-		bgColor = []uint8{255, 255, 255}
+	if bgColor == nil {
+		bgColor = color.RGBA{R: 255, B: 255, G: 255, A: 255}
 	}
 	im.BgColor = bgColor
 
@@ -267,9 +264,14 @@ func (im *InstagramMedia) GetFile() (path string, err error) {
 		}
 		im.OutputFile = &im.InputFile
 		if shouldProcess {
-			im.process()
+			path, err = im.process()
+			if err != nil {
+				return
+			}
+			im.OutputFile = &path
 		}
 	}
+	path = *im.OutputFile
 	return
 }
 
@@ -319,8 +321,8 @@ func (im *InstagramMedia) process() (path string, err error) {
 	var dstRect, srcRect geometry.Rectangle
 	if im.Operation == Crop {
 		idealCanvas := geometry.NewDimensions(outputCanvas.GetWidth()-canvasInfo["mod2WidthDiff"].(int), outputCanvas.GetHeight()-canvasInfo["mod2HeightDiff"].(int))
-		idealWidthScale := float64(idealCanvas.GetWidth() / inputCanvas.GetWidth())
-		idealHeightScale := float64(idealCanvas.GetHeight() / inputCanvas.GetHeight())
+		idealWidthScale := float64(idealCanvas.GetWidth()) / float64(inputCanvas.GetWidth())
+		idealHeightScale := float64(idealCanvas.GetHeight()) / float64(inputCanvas.GetHeight())
 		text := "CROP: Analyzing Original Input Canvas Size"
 		im.debugDimensions(inputCanvas.GetWidth(), inputCanvas.GetHeight(), &text)
 		text = "CROP: Analyzing Ideally Cropped (Non-Mod2-adjusted) Output Canvas Size"
@@ -328,6 +330,7 @@ func (im *InstagramMedia) process() (path string, err error) {
 		text = "CROP: Scale of Ideally Cropped Canvas vs Input Canvas"
 		im.debugText(text, "width=%.8f, height=%.8f", idealWidthScale, idealHeightScale)
 		hasCropped := "height"
+
 		overallRescale := idealWidthScale
 		if idealCanvas.GetAspectRatio() == inputCanvas.GetAspectRatio() {
 			hasCropped = "nothing"
@@ -372,6 +375,7 @@ func (im *InstagramMedia) process() (path string, err error) {
 		im.debugText("CROP: Initializing X/Y Variables to Full Input Canvas Size", "x1=%s, x2=%s, y1=%s, y2=%s", x1, x2, y1, y2)
 		widthDiff := croppedInputCanvas.GetWidth() - inputCanvas.GetWidth()
 		heightDiff := croppedInputCanvas.GetHeight() - inputCanvas.GetHeight()
+
 		im.debugText("CROP: Calculated Input Canvas Crop Amounts", "width=%s px, height=%s px", widthDiff, heightDiff)
 		if widthDiff < 0 {
 			horCropFocus := 0
@@ -417,8 +421,8 @@ func (im *InstagramMedia) process() (path string, err error) {
 		srcRect = geometry.NewRectangle(0, 0, inputCanvas.GetWidth(), inputCanvas.GetHeight())
 		im.debugText("EXPAND_SRC: Input Canvas Source Rectangle", "x1=%s, x2=%s, y1=%s, y2=%s, width=%s, height=%s, aspect=%.8f", srcRect.GetX1(), srcRect.GetX2(), srcRect.GetY1(), srcRect.GetY2(), srcRect.GetWidth(), srcRect.GetHeight(), srcRect.GetAspectRatio())
 
-		outputWidthScale := float64(outputCanvas.GetWidth() / inputCanvas.GetWidth())
-		outputHeightScale := float64(outputCanvas.GetHeight() / inputCanvas.GetHeight())
+		outputWidthScale := float64(outputCanvas.GetWidth()) / float64(inputCanvas.GetWidth())
+		outputHeightScale := float64(outputCanvas.GetHeight()) / float64(inputCanvas.GetHeight())
 		scale := math.Min(outputWidthScale, outputHeightScale)
 		im.debugText("EXPAND: Calculating Scale to Fit Input on Output Canvas", "scale=%.8f", scale)
 		round := "ceil"
@@ -439,7 +443,7 @@ func (im *InstagramMedia) process() (path string, err error) {
 	} else {
 		err = errors.New(fmt.Sprintf("Unsupported operation: %d.", im.Operation))
 	}
-	im.CreateOutputFileFunc(srcRect, dstRect, outputCanvas)
+	path, err = im.CreateOutputFileFunc(srcRect, dstRect, outputCanvas)
 	return
 }
 

@@ -11,7 +11,9 @@ import (
 	_ "image/png"
 	"os"
 
-	"github.com/kr/pretty"
+	"github.com/aliforever/gista/utils"
+
+	"github.com/disintegration/imaging"
 
 	"github.com/go-errors/errors"
 
@@ -51,31 +53,107 @@ func (ip *InstagramPhoto) createOutputFile(srcRect geometry.Rectangle, dstRect g
 		os.Remove(ip.Parent.InputFile)
 		return
 	}
-	ip.processResource(img, srcRect, dstRect, canvas)
+	var result image.Image
+
+	result, err = ip.processResource(img, srcRect, dstRect, canvas)
+	if err != nil {
+		return
+	}
+
+	p := "IMG"
+	var f *os.File
+
+	f, err = utils.CreateTempFile(ip.Parent.TmpPath, &p)
+	if err != nil {
+		return
+	}
+
+	err = jpeg.Encode(f, result, &jpeg.Options{Quality: JPGQuality})
+	if err != nil {
+		if utils.FileOrFolderExists(f.Name()) {
+			os.Remove(f.Name())
+		}
+		return
+	}
+	outputFile = f.Name()
 	return
 }
 
-func (ip *InstagramPhoto) processResource(img image.Image, srcRect, dstRect geometry.Rectangle, canvas geometry.Dimensions) {
+func (ip *InstagramPhoto) processResource(img image.Image, srcRect, dstRect geometry.Rectangle, canvas geometry.Dimensions) (result image.Image, err error) {
 	if ip.details.HasSwappedAxes() {
 		srcRect = srcRect.WithSwappedAxes()
 		dstRect = dstRect.WithSwappedAxes()
 		canvas = canvas.WithSwappedAxes()
 	}
-	output := image.NewRGBA(image.Rect(0, 0, canvas.GetWidth(), canvas.GetHeight()))
-	colors := color.RGBA{R: ip.Parent.BgColor[0], G: ip.Parent.BgColor[1], B: ip.Parent.BgColor[2], A: 255}
-	draw.Draw(output, output.Bounds(), &image.Uniform{C: colors}, image.ZP, draw.Src)
-	draw.Draw(output, output.Bounds(), img, image.Point{X: 90, Y: srcRect.GetY()}, draw.Src)
-	pretty.Println("Source X:", srcRect.GetX(), "Source Y: ", srcRect.GetY(), "Dest X: ", dstRect.GetX(), "Dest Y: ", dstRect.GetY(), "Source Width: ", srcRect.GetWidth(), "Source Height: ", srcRect.GetHeight())
-	save, err := os.Create("test.png")
-	if err != nil {
-		fmt.Println(err)
+
+	// Prepare Image to place
+	preImg := image.NewRGBA(image.Rect(0, 0, srcRect.GetWidth(), srcRect.GetHeight()))
+	draw.Draw(preImg, preImg.Bounds(), img, image.Point{X: srcRect.GetX(), Y: srcRect.GetY()}, draw.Src)
+	preImgRescaled := imaging.Resize(preImg, dstRect.GetWidth(), dstRect.GetHeight(), imaging.Lanczos)
+
+	// White Canvas Background
+	background := image.NewRGBA(image.Rect(0, 0, canvas.GetWidth(), canvas.GetHeight()))
+	draw.Draw(background, background.Bounds(), &image.Uniform{C: ip.Parent.BgColor}, image.ZP, draw.Src)
+
+	// Draw Image to place on White Canvas on new image
+
+	dimensions := image.Rect(dstRect.GetX(), dstRect.GetY(), dstRect.GetWidth()+dstRect.GetX(), dstRect.GetHeight()+dstRect.GetY())
+	draw.Draw(background, background.Bounds(), background, image.Point{}, draw.Src)
+	draw.Draw(background, dimensions, preImgRescaled, image.Point{}, draw.Src)
+	result, err = ip.rotateResource(background, ip.Parent.BgColor)
+	return
+}
+
+func (ip *InstagramPhoto) rotateResource(original image.Image, bgColor color.Color) (img image.Image, err error) {
+	var angle float64
+	var flip *int
+	if ip.details.HasSwappedAxes() {
+		if ip.details.IsHorizontallyFlipped() && ip.details.IsVerticallyFlipped() {
+			angle = -90
+			f := ImgFlipHorizontal
+			flip = &f
+		} else if ip.details.IsHorizontallyFlipped() {
+			angle = -90
+		} else if ip.details.IsVerticallyFlipped() {
+			angle = 90
+		} else {
+			angle = -90
+			f := ImgFlipVertical
+			flip = &f
+		}
+	} else {
+		if ip.details.IsHorizontallyFlipped() && ip.details.IsVerticallyFlipped() {
+			f := ImgFlipBoth
+			flip = &f
+		} else if ip.details.IsHorizontallyFlipped() {
+			f := ImgFlipHorizontal
+			flip = &f
+		} else if ip.details.IsVerticallyFlipped() {
+			f := ImgFlipVertical
+			flip = &f
+		} else {
+			// Do nothing.
+		}
+	}
+	if flip != nil {
+		if *flip == ImgFlipHorizontal {
+			img = imaging.FlipH(original)
+		} else if *flip == ImgFlipVertical {
+			img = imaging.FlipV(original)
+		} else {
+			img = imaging.FlipV(original)
+			img = imaging.FlipH(img)
+		}
+	} else {
+		img = original
+	}
+
+	// Return original resource if no rotation is needed.
+	if angle == 0 {
 		return
 	}
-	err = jpeg.Encode(save, output, nil)
-	if err != nil {
-		fmt.Println(err)
-	}
-	//imagecopyresampled
+	img = imaging.Rotate(img, angle, bgColor)
+	return
 }
 
 func (ip *InstagramPhoto) loadImage() (img image.Image, err error) {

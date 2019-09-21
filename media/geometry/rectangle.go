@@ -76,7 +76,7 @@ func (r *Rectangle) WithRescaling(newScale *float64, roundingFunc *string) (nr *
 	}
 
 	newWidth := scale * float64(r.width)
-	newHeight := scale * float64(r.width)
+	newHeight := scale * float64(r.height)
 	if round == "round" {
 		newWidth = math.Round(newWidth)
 		newHeight = math.Round(newHeight)

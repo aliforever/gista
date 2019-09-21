@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"image"
 	_ "image/gif"
+	"image/jpeg"
 	_ "image/jpeg"
 	_ "image/png"
 	"io"
@@ -35,6 +36,30 @@ const (
 )
 
 var lastUploadId *string = nil
+
+func SaveImage(path string, img image.Image) (err error) {
+	var f *os.File
+	f, err = os.Create(path)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+	err = jpeg.Encode(f, img, nil)
+	return
+}
+
+func CreateTempFile(outputDir string, namePrefix *string) (f *os.File, err error) {
+	finalPrefix := "TEMP"
+	if namePrefix != nil {
+		finalPrefix = *namePrefix
+	}
+	finalPrefix = fmt.Sprintf("INSTA%s_", finalPrefix)
+	f, err = ioutil.TempFile(outputDir, finalPrefix)
+	if err != nil {
+		return
+	}
+	return
+}
 
 func GenerateUploadId(useNano bool) (result string) {
 	if !useNano {
