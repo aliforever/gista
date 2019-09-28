@@ -378,12 +378,12 @@ func (i *internal) uploadResumableMedia(md media2.Details, offsetTemplate, uploa
 			offset = 0
 		} else {
 			offsetRequest := offsetTemplate
-			res := &responses.ResumableOffset{}
-			err = offsetRequest.GetResponse(res)
+			result := &responses.ResumableOffset{}
+			err = offsetRequest.GetResponse(result)
 			if err != nil {
 				return
 			}
-			oss := res.Offset
+			oss := result.Offset
 			offset = *oss
 		}
 		res = &responses.ResumableUpload{}

@@ -228,7 +228,7 @@ func (r *request) getRequestBody() (body io.Reader, contentType string, err erro
 		if r.isBodyCompressed {
 			//
 		}
-		body = strings.NewReader(*r.body)
+		//body = strings.NewReader(*r.body)
 		return
 	}
 	if len(r.posts) == 0 && len(r.files) == 0 {
