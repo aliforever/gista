@@ -3,7 +3,18 @@ package gista
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
+	"os"
+	"path"
 	"time"
+
+	media2 "github.com/aliforever/gista/media"
+
+	"github.com/aliforever/gista/models/item"
+
+	"github.com/aliforever/gista/utils"
+
+	"github.com/aliforever/gista/metadata"
 
 	"github.com/go-errors/errors"
 
@@ -13,6 +24,14 @@ import (
 
 	"github.com/aliforever/gista/constants"
 	"github.com/aliforever/gista/responses"
+)
+
+const (
+	MaxChunkRetries     = 5
+	MaxResumableRetries = 15
+	MaxConfigureRetries = 5
+	MinChunkSize        = 204800
+	MaxChunkSize        = 5242880
 )
 
 type internal struct {
@@ -224,20 +243,172 @@ func (i *internal) ReadMsisdnHeader(usage string, subNoKey *string) (response *r
 	return
 }
 
-func (i *internal) UploadSinglePhoto(targetFeed string, photoFileName string, internalMetaData, externalMetaData interface{}) (response *responses.MSISDNHeader, err error) {
-	/*
-	   if ($targetFeed !== Constants::FEED_TIMELINE
-	               && $targetFeed !== Constants::FEED_STORY
-	               && $targetFeed !== Constants::FEED_DIRECT_STORY
-	           ) {
-	               throw new \InvalidArgumentException(sprintf('Bad target feed "%s".', $targetFeed));
-	           }*/
+func (i *internal) UploadSinglePhoto(targetFeed string, photoFileName string, internalMetaData *metadata.Internal, externalMetaData interface{}) (response *responses.MSISDNHeader, err error) {
 	if targetFeed != constants.FeedTimeline && targetFeed != constants.FeedStory && targetFeed != constants.FeedDirectStory {
 		err = errors.New(fmt.Sprintf("Bad target feed %s", targetFeed))
 		return
 	}
 	if internalMetaData == nil {
-		//internalMetaData =
+		uploadId := utils.GenerateUploadId(true)
+		internalMetaData = metadata.NewInternalMetaData(&uploadId)
 	}
+	if internalMetaData.GetPhotoDetails() == nil {
+		_, err = internalMetaData.SetPhotoDetails(targetFeed, photoFileName)
+		if err != nil {
+			err = errors.New(fmt.Sprintf("Failed to get photo details: %s", err.Error()))
+			return
+		}
+	}
+	i.uploadPhotoData(targetFeed, *internalMetaData)
+
+	i.configureSinglePhoto(targetFeed, *internalMetaData, externalMetaData)
+	return
+}
+
+func (i *internal) uploadPhotoData(targetFeed string, metaData metadata.Internal) (res interface{}, err error) {
+	endPoint := ""
+	switch targetFeed {
+	case constants.FeedTimeline:
+		endPoint = "media/configure"
+	case constants.FeedDirect, constants.FeedDirectStory:
+		endPoint = "configure_to_story"
+	default:
+		err = errors.New(fmt.Sprintf("bad target feed %s", targetFeed) + endPoint)
+		return
+	}
+	return
+}
+
+func (i *internal) configureSinglePhoto(targetFeed string, metaData metadata.Internal, externalMetaData interface{}) (res interface{}, err error) {
+	if targetFeed == constants.FeedDirect {
+		err = errors.New(fmt.Sprintf(`Bad target feed "%s".`, targetFeed))
+		return
+	}
+	if metaData.GetPhotoDetails() == nil {
+		err = errors.New(`Photo details are missing from the internal metadata.`)
+		return
+	}
+	if i.useResumablePhotoUploader(targetFeed, metaData) {
+		res, err = i.uploadResumablePhoto(targetFeed, metaData)
+	} else {
+		res, err = i.uploadPhotoInOnePiece(targetFeed, metaData)
+	}
+	return
+}
+
+func (i *internal) useResumablePhotoUploader(targetFeed string, metaData metadata.Internal) (result bool) {
+	switch targetFeed {
+	case constants.FeedTimelineAlbum:
+		result = i.ig.isExperimentEnabled("ig_android_sidecar_photo_fbupload_universe", "is_enabled_fbupload_sidecar_photo", false)
+		return
+	default:
+		result = i.ig.isExperimentEnabled("ig_android_photo_fbupload_universe", "is_enabled_fbupload_photo", false)
+		return
+	}
+}
+
+func (i *internal) getPhotoUploadParams(targetFeed string, metaData metadata.Internal) (result map[string]string) {
+	retryContext := i.getRetryContext()
+	ji, _ := json.Marshal(retryContext)
+	mediaType := item.Photo
+	if metaData.GetVideoDetails() != nil {
+		mediaType = item.Video
+	}
+	result = map[string]string{
+		"upload_id":         metaData.GetUploadId(),
+		"retry_context":     string(ji),
+		"image_compression": `{"lib_name":"moz","lib_version":"3.1.m","quality":"87"}`,
+		"xsharing_user_ids": `[]`,
+		"media_type":        fmt.Sprintf("%d", mediaType),
+	}
+	switch targetFeed {
+	case constants.FeedTimelineAlbum:
+		result["is_sidecar"] = "1"
+		break
+	}
+	return
+}
+
+func (i internal) getRetryContext() map[string]int {
+	return map[string]int{
+		"num_step_auto_retry":   0,
+		"num_reupload":          0,
+		"num_step_manual_retry": 0,
+	}
+}
+
+func (i *internal) uploadResumablePhoto(targetFeed string, metaData metadata.Internal) (res *responses.ResumableUpload, err error) {
+	pd := metaData.GetPhotoDetails()
+	endPoint := fmt.Sprintf("https://i.instagram.com/rupload_igphoto/%s_%d_%d", metaData.GetUploadId(), 0, utils.HashCode(pd.GetFileName()))
+	uploadParams := i.getPhotoUploadParams(targetFeed, metaData)
+	j, _ := json.Marshal(uploadParams)
+	offsetTemplate := i.ig.client.Request(endPoint)
+	offsetTemplate.
+		SetAddDefaultHeaders(false).
+		AddHeader("X_FB_PHOTO_WATERFALL_ID", signatures.GenerateUUID(true)).
+		AddHeader("X-Instagram-Rupload-Params", string(j))
+	u, _ := url.Parse(endPoint)
+	uploadTemplate := offsetTemplate
+	uploadTemplate.
+		AddHeader("X-Entity-Type", "image/jpeg").
+		AddHeader("X-Entity-Name", path.Base(u.Path)).
+		AddHeader("X-Entity-Length", fmt.Sprintf("%d", pd.GetFileSize()))
+	res, err = i.uploadResumableMedia(pd, offsetTemplate, uploadTemplate, i.ig.isExperimentEnabled("ig_android_skip_get_fbupload_photo_universe", "photo_skip_get", false))
+	return
+}
+
+func (i *internal) uploadResumableMedia(md media2.Details, offsetTemplate, uploadTemplate *request, skipGet bool) (res *responses.ResumableUpload, err error) {
+	var f *os.File
+	f, err = os.Open(md.GetFileName())
+	if err != nil {
+		err = errors.New(fmt.Sprintf(`Failed to open media file for reading. %s`, err.Error()))
+		return
+	}
+	defer f.Close()
+	//fileSize := md.GetFileSize()
+	attempt := 0
+	var offset int
+	for true {
+		attempt += 1
+		if attempt > MaxResumableRetries {
+			err = errors.New("All retries have failed.")
+			return
+		}
+		if attempt == 1 && skipGet {
+			offset = 0
+		} else {
+			offsetRequest := offsetTemplate
+			res := &responses.ResumableOffset{}
+			err = offsetRequest.GetResponse(res)
+			if err != nil {
+				return
+			}
+			oss := res.Offset
+			offset = *oss
+		}
+		res = &responses.ResumableUpload{}
+		uploadRequest := uploadTemplate
+		err = uploadRequest.AddHeader("Offset", fmt.Sprintf("%d", offset)).
+			SetBody(f).GetResponse(res)
+		if err != nil {
+			return
+		}
+	}
+	err = errors.New("Something went wrong during media upload.")
+	return
+}
+
+func (i *internal) uploadPhotoInOnePiece(targetFeed string, metaData metadata.Internal) (res *responses.UploadPhoto, err error) {
+	res = &responses.UploadPhoto{}
+	fileName := "pending_media_" + utils.GenerateUploadId(false) + ".jpg"
+	var req *request
+	req, err = i.ig.client.Request(constants.UploadPhoto).SetSignedPost(false).AddUuIdPost().AddCSRFPost().AddFile("photo", metaData.GetPhotoDetails().GetFileName(), &fileName, nil)
+	if err != nil {
+		return
+	}
+	for k, v := range i.getPhotoUploadParams(targetFeed, metaData) {
+		req.AddPost(k, v)
+	}
+	err = req.GetResponse(res)
 	return
 }

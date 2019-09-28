@@ -99,7 +99,7 @@ type User struct {
 	BlockAt                        interface{} `json:"block_at,omitempty"`
 	AggregatePromoteEngagement     interface{} `json:"aggregate_promote_engagement,omitempty"`
 	FBUID                          interface{} `json:"fbuid,omitempty"`
-	PageId                         string      `json:"page_id,omitempty"`
+	PageId                         interface{} `json:"page_id,omitempty"`
 	CanClaimPage                   bool        `json:"can_claim_page,omitempty"`
 	FbPageCallToActionIxAppId      int         `json:"fb_page_call_to_action_ix_app_id,omitempty"`
 	FbPageCallToActionIxUrl        string      `json:"fb_page_call_to_action_ix_url,omitempty"`

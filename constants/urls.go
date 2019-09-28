@@ -10,6 +10,7 @@ const LoomFetchConfig string = "loom/fetch_config/"
 const ProfileNotice string = "users/profile_notice/"
 const FetchQPData string = "qp/batch_fetch/"
 const FacebookOTA string = "facebook_ota/"
+const UploadPhoto string = "upload/photo/"
 
 // Account
 const ContactPointPreFill string = "accounts/contact_point_prefill/"

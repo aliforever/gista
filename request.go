@@ -28,7 +28,7 @@ type request struct {
 	parent           *client
 	url              string
 	params           map[string]string
-	body             *string
+	body             io.Reader
 	headers          map[string]string
 	posts            map[string]interface{}
 	defaultHeaders   bool
@@ -59,6 +59,11 @@ func newRequest(address string, parent *client) (r *request) {
 	r.excludeSigned = &[]string{}
 	r.defaultHeaders = true
 	return
+}
+
+func (r *request) SetAddDefaultHeaders(val bool) *request {
+	r.defaultHeaders = val
+	return r
 }
 
 func (r *request) SetIsBodyCompressed(val bool) *request {
@@ -191,6 +196,11 @@ func (r *request) AddHeader(key, val string) *request {
 		r.headers = map[string]string{}
 	}
 	r.headers[key] = val
+	return r
+}
+
+func (r *request) SetBody(stream io.Reader) *request {
+	r.body = stream
 	return r
 }
 
